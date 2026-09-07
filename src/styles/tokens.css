@@ -22,5 +22,14 @@
   --danger-line: #e9caca;
   --shadow-color: rgb(16 42 41 / 10%);
   --backdrop: rgb(16 42 41 / 42%);
-  --font-family: "Segoe UI", Arial, sans-serif;
+  --font-family: "Segoe UI Variable", "Segoe UI", Arial, sans-serif;
+  --shadow-soft: 0 8px 24px rgb(16 42 41 / 7%);
+  --shadow-elevated: 0 20px 60px rgb(16 42 41 / 12%);
+  --radius-lg: 1rem;
+  --motion-fast: 150ms;
+  --motion-base: 220ms;
+  --motion-slow: 600ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --content-max: 90rem;
 }

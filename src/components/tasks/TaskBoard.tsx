@@ -103,7 +103,7 @@ export function TaskBoard({
                     initial={reduced ? false : { opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.16 }}
-                    className="task-card"
+                    className={`task-card ${task.status === "DONE" ? "completion-pulse" : ""}`}
                   >
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <button

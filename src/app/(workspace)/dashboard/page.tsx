@@ -20,6 +20,8 @@ import { Loading, LoadError, EmptyState } from "@/components/shared/Feedback";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { TaskList } from "@/components/tasks/TaskList";
+import { TaskFlow } from "@/components/visualization/TaskFlow";
+import { AnimatedNumber } from "@/components/shared/AnimatedNumber";
 
 export default function DashboardPage() {
   const { data: user } = useSWR<User>(authApi.me, api);
@@ -51,6 +53,10 @@ export default function DashboardPage() {
     0,
   );
   const total = projects.reduce((sum, project) => sum + project.taskCount, 0);
+  const inProgress = projects.reduce(
+    (sum, project) => sum + project.inProgressTaskCount,
+    0,
+  );
   const team = new Set(projects.flatMap((project) => project.memberIds));
   const active = projects.filter(
     (project) => project.taskCount === 0 || project.progress < 100,
@@ -103,7 +109,7 @@ export default function DashboardPage() {
               <stat.icon size={17} strokeWidth={1.6} className="text-muted" />
             </div>
             <p className="mt-5 text-3xl font-semibold tracking-tight">
-              {stat.value}
+              <AnimatedNumber value={stat.value} />
             </p>
             <p className="mt-2 text-[11px] text-muted">{stat.detail}</p>
           </div>

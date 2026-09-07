@@ -19,6 +19,7 @@ import { api, ApiError } from "@/services/api/client";
 import { authApi } from "@/services/api/auth";
 import { navigation } from "@data/navigation";
 import type { User } from "@/types/domain";
+import { PageMotion } from "./PageMotion";
 
 const icons = {
   dashboard: LayoutDashboard,
@@ -154,7 +155,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           id="main"
           className="mx-auto max-w-[1440px] px-5 py-8 md:px-9 md:py-10"
         >
-          {children}
+          <PageMotion>{children}</PageMotion>
         </main>
         <footer className="mx-5 flex justify-between border-t border-line py-6 text-[11px] text-muted md:mx-9">
           <span>Taskora</span>

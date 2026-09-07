@@ -299,7 +299,8 @@ textarea.input {
 }
 .project-card:hover {
   border-color: var(--line-strong);
-  box-shadow: 0 5px 18px var(--shadow-color);
+  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
 }
 .hero-title {
   font-size: clamp(40px, 5.2vw, 68px);
@@ -349,4 +350,40 @@ textarea.input {
   color: var(--muted);
   font-size: 9px;
   font-weight: 600;
+}
+
+.surface-raised {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+}
+.marketing-header {
+  transition:
+    background-color var(--motion-base),
+    box-shadow var(--motion-base),
+    border-color var(--motion-base);
+}
+.marketing-header.scrolled {
+  background: rgb(255 255 255 / 92%);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+}
+.constellation-fallback {
+  background:
+    radial-gradient(circle at 65% 28%, rgb(23 107 104 / 18%), transparent 28%),
+    radial-gradient(circle at 28% 72%, rgb(165 106 24 / 10%), transparent 22%),
+    var(--dark-product);
+}
+.metric-number {
+  font-variant-numeric: tabular-nums;
+}
+.completion-pulse {
+  animation: completion-pulse 700ms var(--ease-emphasized);
+}
+.btn:active {
+  transform: translateY(1px) scale(0.985);
+}
+.btn-primary:hover {
+  box-shadow: 0 8px 18px rgb(23 107 104 / 18%);
 }

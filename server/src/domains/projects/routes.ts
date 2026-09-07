@@ -36,12 +36,16 @@ projectRouter.get("/", async (_req, res) => {
   res.json(
     projects.map(({ tasks, members, ...project }) => {
       const completed = tasks.filter((task) => task.status === "DONE").length;
+      const inProgress = tasks.filter(
+        (task) => task.status === "IN_PROGRESS",
+      ).length;
       return {
         ...project,
         memberIds: members.map((member) => member.userId),
         memberCount: members.length,
         taskCount: tasks.length,
         completedTaskCount: completed,
+        inProgressTaskCount: inProgress,
         progress: tasks.length
           ? Math.round((completed / tasks.length) * 100)
           : 0,

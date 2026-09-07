@@ -1,7 +1,8 @@
 "use client";
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { Search } from "lucide-react";
+import { Search, ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { api } from "@/services/api/client";
 import { tasksApi } from "@/services/api/tasks";
 import type { MyTask } from "@/types/domain";

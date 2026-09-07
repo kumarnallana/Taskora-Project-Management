@@ -24,3 +24,12 @@
     scroll-behavior: auto !important;
   }
 }
+
+@keyframes completion-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgb(47 125 90 / 24%);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgb(47 125 90 / 0%);
+  }
+}

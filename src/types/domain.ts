@@ -28,6 +28,7 @@ export type ProjectSummary = Project & {
   memberCount: number;
   taskCount: number;
   completedTaskCount: number;
+  inProgressTaskCount: number;
 };
 export type ProjectDetail = Project & { members: Member[]; tasks: Task[] };
 export type ProjectInput = { name: string; description: string };
