@@ -157,10 +157,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         >
           <PageMotion>{children}</PageMotion>
         </main>
-        <footer className="mx-5 flex justify-between border-t border-line py-6 text-[11px] text-muted md:mx-9">
-          <span>Taskora</span>
-          <span>Plan. Assign. Deliver.</span>
-        </footer>
       </div>
       {drawer && (
         <Dialog title="Your workspace" onClose={() => setDrawer(false)}>

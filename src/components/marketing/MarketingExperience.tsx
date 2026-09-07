@@ -195,6 +195,14 @@ export function MarketingExperience() {
         duration: 0.55,
         ease: "power3.out",
       });
+      gsap.from("[data-footer-group]", {
+        scrollTrigger: { trigger: "[data-final]", start: "top 88%" },
+        opacity: 0,
+        y: 15,
+        duration: 0.5,
+        stagger: 0.05,
+        ease: "power3.out",
+      });
     }, root);
     return () => context.revert();
   }, [reduced]);
@@ -320,30 +328,66 @@ export function MarketingExperience() {
               </div>
             </div>
           </section>
-          <section data-final className="mx-auto max-w-7xl px-5 py-16 md:px-10">
-            <div className="flex flex-col items-start justify-between gap-6 rounded-2xl bg-dark-product p-8 text-dark-text md:flex-row md:items-center md:p-10">
-              <div>
-                <p className="eyebrow mb-3 !text-white/60">Your next project</p>
-                <h2 className="text-2xl tracking-tight">
-                  Give your team a clear way forward.
-                </h2>
-                <p className="mt-3 text-sm text-white/65">
-                  Start with the plan. Taskora will help you keep it moving.
-                </p>
+          <section data-final className="w-full bg-dark-product text-dark-text pt-20 pb-12 rounded-t-[2.5rem] px-5 md:px-10 mt-16 overflow-hidden">
+            <div className="mx-auto max-w-7xl">
+              <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-center border-b border-white/10 pb-16">
+                <div>
+                  <p className="eyebrow mb-3 !text-white/60">Your next project</p>
+                  <h2 className="text-3xl tracking-tight">
+                    Give your team a clear way forward.
+                  </h2>
+                  <p className="mt-3 text-sm text-white/65">
+                    Start with the plan. Taskora will help you keep it moving.
+                  </p>
+                </div>
+                <Link href="/register" className="btn bg-white text-ink">
+                  Get Started
+                  <ArrowRight size={17} />
+                </Link>
               </div>
-              <Link href="/register" className="btn bg-white text-ink">
-                Get Started
-                <ArrowRight size={17} />
-              </Link>
+              
+              <footer className="pt-12">
+                <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr_1.5fr] lg:gap-8 pb-12">
+                  <div data-footer-group>
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-white">
+                        <Check size={18} strokeWidth={3} />
+                      </div>
+                      <span className="text-xl font-bold tracking-tight text-white">Taskora</span>
+                    </div>
+                    <p className="text-sm text-white/60 max-w-xs">{brand.description}</p>
+                  </div>
+                  <div data-footer-group>
+                    <h4 className="font-semibold text-white mb-4">Product</h4>
+                    <ul className="space-y-3 text-sm text-white/60">
+                      <li><a href="#story" className="hover:text-white transition-colors">How it works</a></li>
+                      <li><Link href="/dashboard" className="hover:text-white transition-colors">Workspace</Link></li>
+                    </ul>
+                  </div>
+                  <div data-footer-group>
+                    <h4 className="font-semibold text-white mb-4">Access</h4>
+                    <ul className="space-y-3 text-sm text-white/60">
+                      <li><Link href="/login" className="hover:text-white transition-colors">Sign in</Link></li>
+                      <li><Link href="/register" className="hover:text-white transition-colors">Create workspace</Link></li>
+                    </ul>
+                  </div>
+                  <div data-footer-group className="flex flex-col justify-end items-start md:items-end gap-3 pb-2">
+                    <span className="text-xs font-semibold tracking-widest text-white/30 uppercase">Plan</span>
+                    <span className="text-xs font-semibold tracking-widest text-white/30 uppercase">Assign</span>
+                    <span className="text-xs font-semibold tracking-widest text-white/30 uppercase">Deliver</span>
+                  </div>
+                </div>
+                <div data-footer-group className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-white/5 text-[11px] text-white/40">
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-white/60">Taskora</span>
+                    <span>&copy; {new Date().getFullYear()}</span>
+                  </div>
+                  <span>{brand.tagline}</span>
+                </div>
+              </footer>
             </div>
           </section>
         </main>
-        <footer className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-line px-5 py-7 sm:flex-row md:px-10">
-          <Brand />
-          <p className="self-start text-xs text-muted sm:self-center">
-            {brand.tagline}
-          </p>
-        </footer>
       </div>
     </MarketingSmoothScroll>
   );
