@@ -12,7 +12,8 @@
     "db:local": "node scripts/local-db.mjs",
     "test": "tsx --test server/tests/api.test.ts",
     "postinstall": "prisma generate",
-    "setup": "node scripts/setup-env.mjs"
+    "setup": "node scripts/setup-env.mjs",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -33,6 +34,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4.1.17",
     "@types/bcrypt": "^6.0.0",
     "@types/cookie-parser": "^1.4.10",

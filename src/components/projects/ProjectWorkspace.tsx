@@ -109,7 +109,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
             className={`tab capitalize ${tab === name ? "active" : ""}`}
             aria-current={tab === name ? "page" : undefined}
           >
-            {name}
+            {name[0].toUpperCase() + name.slice(1)}
             {name === "tasks" && (
               <span className="ml-2 text-xs text-muted">
                 {project.tasks.length}

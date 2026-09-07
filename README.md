@@ -59,9 +59,11 @@ npm run build
 
 The integration test uses real PostgreSQL, creates uniquely named accounts, checks the full lifecycle and authorization boundaries, and removes only its own records. Run it against a development database, never production.
 
+With the local application running, `npm run test:e2e` checks the connected UI lifecycle and desktop, tablet, and mobile layouts. It uses Microsoft Edge on Windows. On Linux or macOS, first run `npx playwright install chromium`.
+
 ## Production
 
-Set a PostgreSQL `DATABASE_URL`, a cryptographically random `JWT_SECRET` of at least 32 characters, and an exact HTTPS `CLIENT_ORIGIN` without a trailing slash. Set `API_INTERNAL_URL` before building to the Express service's internal origin. Next rewrites are resolved during the build.
+Set `NODE_ENV=production`, a PostgreSQL `DATABASE_URL`, a cryptographically random `JWT_SECRET` of at least 32 characters, and an exact HTTPS `CLIENT_ORIGIN` without a trailing slash. Set `API_INTERNAL_URL` before building to the Express service's internal origin. Next rewrites are resolved during the build.
 
 ```sh
 npm ci
