@@ -1,0 +1,14 @@
+:root {
+  --canvas: #f7f6f3;
+  --surface: #fff;
+  --ink: #252525;
+  --muted: #73716f;
+  --line: #e7e5e1;
+  --accent: #7b283e;
+  --accent-hover: #632034;
+  --accent-soft: #f4e9ed;
+  --success: #306b53;
+  --success-soft: #e9f2ec;
+  --amber: #8a601e;
+  --amber-soft: #f7f0df;
+}

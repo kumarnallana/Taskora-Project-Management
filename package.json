@@ -11,7 +11,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:local": "node scripts/local-db.mjs",
     "test": "tsx --test server/tests/api.test.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "setup": "node scripts/setup-env.mjs"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
@@ -28,6 +29,7 @@
     "next": "16.3.4",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "swr": "^2.5.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -46,5 +48,8 @@
     "tailwindcss": "^4.1.17",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "deepmerge-ts": "^8.0.0"
   }
 }

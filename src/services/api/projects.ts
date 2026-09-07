@@ -1,0 +1,25 @@
+import { api } from "./client";
+import type { ProjectInput, Project, Member } from "@/types/domain";
+export const projectsApi = {
+  list: "/api/projects",
+  detail: (id: string) => `/api/projects/${id}`,
+  create: (input: ProjectInput) =>
+    api<Project>("/api/projects", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+  update: (id: string, input: ProjectInput) =>
+    api<Project>(`/api/projects/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
+  remove: (id: string) =>
+    api<void>(`/api/projects/${id}`, { method: "DELETE" }),
+  addMember: (id: string, email: string) =>
+    api<Member>(`/api/projects/${id}/members`, {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    }),
+  removeMember: (id: string, userId: string) =>
+    api<void>(`/api/projects/${id}/members/${userId}`, { method: "DELETE" }),
+};
