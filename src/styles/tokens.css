@@ -1,14 +1,26 @@
 :root {
-  --canvas: #f7f6f3;
-  --surface: #fff;
-  --ink: #252525;
-  --muted: #73716f;
-  --line: #e7e5e1;
-  --accent: #7b283e;
-  --accent-hover: #632034;
-  --accent-soft: #f4e9ed;
-  --success: #306b53;
-  --success-soft: #e9f2ec;
-  --amber: #8a601e;
-  --amber-soft: #f7f0df;
+  --canvas: #f4f7f7;
+  --surface: #ffffff;
+  --surface-muted: #eaf0ef;
+  --ink: #14201f;
+  --muted: #667572;
+  --accent: #176b68;
+  --accent-hover: #115956;
+  --accent-soft: #ddf0ed;
+  --line: #dce5e3;
+  --line-strong: #b7cdca;
+  --focus-ring: #8bc1ba;
+  --dark-product: #102a29;
+  --dark-text: #f5faf9;
+  --success: #2f7d5a;
+  --success-soft: #e7f3ed;
+  --amber: #a56a18;
+  --amber-soft: #fbf2e3;
+  --danger: #b54747;
+  --danger-soft: #fff4f4;
+  --danger-hover: #fbe5e5;
+  --danger-line: #e9caca;
+  --shadow-color: rgb(16 42 41 / 10%);
+  --backdrop: rgb(16 42 41 / 42%);
+  --font-family: "Segoe UI", Arial, sans-serif;
 }

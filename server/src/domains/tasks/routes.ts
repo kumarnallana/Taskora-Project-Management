@@ -24,9 +24,9 @@ export const taskSelect = {
 const taskInput = z
   .object({
     title: z.string().trim().min(1).max(160),
-    description: z.string().trim().max(4000).default(""),
-    status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).default("TODO"),
-    assigneeId: z.uuid().nullable().default(null),
+    description: z.string().trim().max(4000).optional(),
+    status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
+    assigneeId: z.uuid().nullable().optional(),
   })
   .strict();
 const taskPatch = taskInput

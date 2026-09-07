@@ -78,7 +78,7 @@ export function TaskBoard({
             <section
               key={status.value}
               aria-label={status.label}
-              className={`min-w-0 rounded-xl border border-line bg-[#f0efeb] p-3 ${mobileStatus === status.value ? "" : "hidden lg:block"}`}
+              className={`min-w-0 rounded-xl border border-line bg-surface-muted p-3 ${mobileStatus === status.value ? "" : "hidden lg:block"}`}
             >
               <div className="mb-4 flex items-center justify-between pl-1">
                 <h2 className="flex items-center gap-2 text-xs">
@@ -180,7 +180,7 @@ export function TaskBoard({
                   </motion.article>
                 ))}
                 {!column.length && (
-                  <p className="rounded-lg border border-dashed border-[#d8d5cf] px-3 py-10 text-center text-xs text-muted">
+                  <p className="rounded-lg border border-dashed border-line px-3 py-10 text-center text-xs text-muted">
                     {search
                       ? "No matching tasks."
                       : "A little room for the next step."}

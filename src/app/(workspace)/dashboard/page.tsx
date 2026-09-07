@@ -100,7 +100,7 @@ export default function DashboardPage() {
           <div key={stat.label} className="card p-4 sm:p-5">
             <div className="flex items-center justify-between gap-2">
               <span className="text-xs text-muted">{stat.label}</span>
-              <stat.icon size={17} strokeWidth={1.6} className="text-accent" />
+              <stat.icon size={17} strokeWidth={1.6} className="text-muted" />
             </div>
             <p className="mt-5 text-3xl font-semibold tracking-tight">
               {stat.value}

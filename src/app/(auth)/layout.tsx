@@ -1,43 +1,59 @@
 import { Brand } from "@/components/shared/Brand";
-import { Check } from "lucide-react";
+import { FolderKanban, Users, CheckCheck } from "lucide-react";
+
 export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-2">
-      <aside className="hidden flex-col justify-between bg-[#eeeae3] p-12 lg:flex">
+    <div className="grid min-h-dvh bg-canvas lg:grid-cols-2">
+      <aside className="hidden flex-col justify-between border-r border-line p-12 lg:flex">
         <Brand />
-        <div className="max-w-lg">
-          <p className="eyebrow mb-7">Plan. Assign. Deliver.</p>
-          <h2 className="font-serif text-6xl leading-[1.06] tracking-tight">
-            Good work starts
+        <div className="max-w-md">
+          <p className="eyebrow mb-5">YOUR TEAM'S NEXT STEP</p>
+          <h2 className="text-5xl leading-[1.12] tracking-tight">
+            Bring the plan
             <br />
-            with a <span className="text-accent italic">clear plan.</span>
+            and the people
+            <br />
+            together.
           </h2>
           <p className="mt-6 max-w-sm text-base leading-relaxed text-muted">
-            A shared space for the projects that matter and the people who make
-            them happen.
+            A focused workspace for making progress. Clear projects, shared
+            ownership, and work that moves forward.
           </p>
-          <div className="mt-10 space-y-4 text-sm">
-            <p className="flex items-center gap-3">
-              <Check size={17} className="text-accent" />
-              Bring every project into focus
-            </p>
-            <p className="flex items-center gap-3">
-              <Check size={17} className="text-accent" />
-              Give every task a clear owner
-            </p>
-            <p className="flex items-center gap-3">
-              <Check size={17} className="text-accent" />
-              See progress as it happens
-            </p>
+          <div className="card mt-9 divide-y divide-line px-5">
+            <div className="flex items-center gap-4 py-5">
+              <FolderKanban size={20} className="text-muted" />
+              <div>
+                <p className="text-sm font-semibold">Plan with clarity</p>
+                <p className="mt-1 text-xs text-muted">
+                  Give every project a shared direction.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 py-5">
+              <Users size={20} className="text-muted" />
+              <div>
+                <p className="text-sm font-semibold">Know who's on it</p>
+                <p className="mt-1 text-xs text-muted">
+                  Connect the right people to the work.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 py-5">
+              <CheckCheck size={20} className="text-muted" />
+              <div>
+                <p className="text-sm font-semibold">See what's moving</p>
+                <p className="mt-1 text-xs text-muted">
+                  Turn completed tasks into visible progress.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
-        <p className="text-xs text-muted">
-          A little more clarity. A lot more forward.
-        </p>
+        <p className="text-xs text-muted">Plan. Assign. Deliver.</p>
       </aside>
       <div className="flex min-h-dvh flex-col bg-white">
         <div className="px-6 pt-7 lg:hidden">

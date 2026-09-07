@@ -12,7 +12,7 @@ import { taskSelect } from "../tasks/routes";
 const projectInput = z
   .object({
     name: z.string().trim().min(1).max(120),
-    description: z.string().trim().max(4000).default(""),
+    description: z.string().trim().max(4000).optional(),
   })
   .strict();
 const projectPatch = projectInput

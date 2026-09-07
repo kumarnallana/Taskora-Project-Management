@@ -8,7 +8,7 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
       className="project-card card flex min-w-0 flex-col p-6"
     >
       <div className="mb-5 flex items-center justify-between">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-canvas text-accent">
+        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-canvas text-muted">
           <FolderKanban size={21} strokeWidth={1.5} />
         </span>
         <ArrowUpRight size={18} className="text-muted" />

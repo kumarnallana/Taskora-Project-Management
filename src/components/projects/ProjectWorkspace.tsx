@@ -167,7 +167,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
             <p className="eyebrow mb-6">Every step counts</p>
             <div className="mb-5 flex items-end justify-between">
               <h2 className="text-lg">Project progress</h2>
-              <span className="text-3xl font-semibold tracking-tight text-accent">
+              <span className="text-3xl font-semibold tracking-tight text-ink">
                 {project.progress}%
               </span>
             </div>

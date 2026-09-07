@@ -135,7 +135,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Menu size={20} />
             </button>
             <span className="text-sm font-medium">
-              Workspace <span className="mx-2 text-[#c5c1bc]">/</span>{" "}
+              Workspace <span className="mx-2 text-line">/</span>{" "}
               <span className="text-muted">{current?.label || "Project"}</span>
             </span>
           </div>

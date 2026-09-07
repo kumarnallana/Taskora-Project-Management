@@ -431,6 +431,16 @@ test(
       await t.test(
         "keeps assignments valid during concurrent membership removal",
         async () => {
+          const retained = await prisma.task.findUniqueOrThrow({
+            where: { id: taskId },
+          });
+          assert.equal(retained.assigneeId, member.id);
+          assert.equal(retained.description, "Real work");
+          assert.equal(
+            (await request("/tasks/mine", "GET", undefined, member.cookie))
+              .data[0].id,
+            taskId,
+          );
           const results = await Promise.all([
             request(
               `/projects/${projectId}/members/${member.id}`,
