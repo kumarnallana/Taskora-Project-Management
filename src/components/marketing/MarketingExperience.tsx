@@ -206,7 +206,7 @@ function ProductWorkspacePreview() {
       <div className="sm:hidden flex border-b border-line bg-surface-muted/30 p-1.5 gap-1 text-xs">
         {(["TODO", "IN_PROGRESS", "DONE"] as const).map((col) => {
           const label = col === "TODO" ? "To Do" : col === "IN_PROGRESS" ? "In Progress" : "Done";
-          const count = col === "TODO" ? 1 : 2;
+          const count = 3;
           const isActive = mobileColumn === col;
           return (
             <button
@@ -229,12 +229,28 @@ function ProductWorkspacePreview() {
       {/* Mobile Single Column Content */}
       <div className="sm:hidden p-4 bg-canvas/40 min-h-[290px] flex flex-col gap-3">
         {mobileColumn === "TODO" && (
-          <WorkspaceTaskCard
-            status="TODO"
-            title="Release notes v1.2"
-            desc="Compile change summary for the upcoming launch."
-            tag="Docs"
-          />
+          <>
+            <WorkspaceTaskCard
+              status="TODO"
+              title="Release notes v1.2"
+              desc="Compile change summary for the upcoming launch."
+              tag="Docs"
+            />
+            <WorkspaceTaskCard
+              status="TODO"
+              title="Update API schema"
+              desc="Add new endpoints for the reporting dashboard integration."
+              tag="Backend"
+              assignee={{ initials: "JS", name: "John S." }}
+            />
+            <WorkspaceTaskCard
+              status="TODO"
+              title="Review accessibility"
+              desc="Ensure color contrast meets WCAG AA standards across the app."
+              tag="Design"
+              priority="P2"
+            />
+          </>
         )}
         {mobileColumn === "IN_PROGRESS" && (
           <>
@@ -250,9 +266,16 @@ function ProductWorkspacePreview() {
             <WorkspaceTaskCard
               status="IN_PROGRESS"
               title="Design hero system"
-              desc="Finalize visual tokens and responsive layout."
+              desc="Finalize visual tokens and responsive layout for the landing page."
               tag="Design"
-              assignee={{ initials: "SK", name: "Sasi" }}
+              assignee={{ initials: "SK", name: "Sasi K." }}
+            />
+            <WorkspaceTaskCard
+              status="IN_PROGRESS"
+              title="Setup staging environment"
+              desc="Provision database and cache clusters for beta testing."
+              tag="DevOps"
+              assignee={{ initials: "TC", name: "Tom C." }}
             />
           </>
         )}
@@ -261,17 +284,25 @@ function ProductWorkspacePreview() {
             <WorkspaceTaskCard
               status="DONE"
               title="User flow audit"
-              desc="All 5 core activation paths verified."
+              desc="All 5 core activation paths verified and documented."
               tag="QA"
-              assignee={{ initials: "JL", name: "Jess" }}
+              assignee={{ initials: "JL", name: "Jess L." }}
               isCompleted
             />
             <WorkspaceTaskCard
               status="DONE"
               title="Define brand tokens"
-              desc="Approved color system and spacing scale."
+              desc="Approved color system, typography, and spacing scale."
               tag="Design"
-              assignee={{ initials: "AR", name: "Alex" }}
+              assignee={{ initials: "AR", name: "Alex R." }}
+              isCompleted
+            />
+            <WorkspaceTaskCard
+              status="DONE"
+              title="Initialize monorepo"
+              desc="Set up Next.js frontend and Express backend workspaces."
+              tag="Core"
+              assignee={{ initials: "JS", name: "John S." }}
               isCompleted
             />
           </>
@@ -285,7 +316,7 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>To Do</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              1
+              3
             </span>
           </h3>
           <WorkspaceTaskCard
@@ -294,6 +325,20 @@ function ProductWorkspacePreview() {
             desc="Compile change summary for the upcoming launch."
             tag="Docs"
           />
+          <WorkspaceTaskCard
+            status="TODO"
+            title="Update API schema"
+            desc="Add new endpoints for the reporting dashboard integration."
+            tag="Backend"
+            assignee={{ initials: "JS", name: "John S." }}
+          />
+          <WorkspaceTaskCard
+            status="TODO"
+            title="Review accessibility"
+            desc="Ensure color contrast meets WCAG AA standards across the app."
+            tag="Design"
+            priority="P2"
+          />
         </div>
 
         {/* Column 2: IN PROGRESS */}
@@ -301,7 +346,7 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>In Progress</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              2
+              3
             </span>
           </h3>
           <WorkspaceTaskCard
@@ -316,9 +361,16 @@ function ProductWorkspacePreview() {
           <WorkspaceTaskCard
             status="IN_PROGRESS"
             title="Design hero system"
-            desc="Finalize visual tokens and responsive layout."
+            desc="Finalize visual tokens and responsive layout for the landing page."
             tag="Design"
-            assignee={{ initials: "SK", name: "Sasi" }}
+            assignee={{ initials: "SK", name: "Sasi K." }}
+          />
+          <WorkspaceTaskCard
+            status="IN_PROGRESS"
+            title="Setup staging environment"
+            desc="Provision database and cache clusters for beta testing."
+            tag="DevOps"
+            assignee={{ initials: "TC", name: "Tom C." }}
           />
         </div>
 
@@ -327,23 +379,31 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>Done</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              2
+              3
             </span>
           </h3>
           <WorkspaceTaskCard
             status="DONE"
             title="User flow audit"
-            desc="All 5 core activation paths verified."
+            desc="All 5 core activation paths verified and documented."
             tag="QA"
-            assignee={{ initials: "JL", name: "Jess" }}
+            assignee={{ initials: "JL", name: "Jess L." }}
             isCompleted
           />
           <WorkspaceTaskCard
             status="DONE"
             title="Define brand tokens"
-            desc="Approved color system and spacing scale."
+            desc="Approved color system, typography, and spacing scale."
             tag="Design"
-            assignee={{ initials: "AR", name: "Alex" }}
+            assignee={{ initials: "AR", name: "Alex R." }}
+            isCompleted
+          />
+          <WorkspaceTaskCard
+            status="DONE"
+            title="Initialize monorepo"
+            desc="Set up Next.js frontend and Express backend workspaces."
+            tag="Core"
+            assignee={{ initials: "JS", name: "John S." }}
             isCompleted
           />
         </div>
