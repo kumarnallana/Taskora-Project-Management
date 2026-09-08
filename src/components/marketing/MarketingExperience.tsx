@@ -43,85 +43,123 @@ function LivingPreview() {
   const [phase, setPhase] = useState(0);
   const reduced = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
+  
+  // Phase 0: INITIAL (20%)
+  // Phase 1: PLAN (Task appears)
+  // Phase 2: ASSIGN (Member connects)
+  // Phase 3: MOVE (Status changes to In Progress)
+  // Phase 4: COMPLETE (Task resolves)
+  // Phase 5: FINAL (60%)
+
   useEffect(() => {
     if (reduced) return;
-    let visible = true;
+    let timeoutId: number;
+
     const observer = new IntersectionObserver(
-      ([entry]) => (visible = entry.isIntersecting),
-      { threshold: 0.2 },
+      ([entry]) => {
+        if (entry.isIntersecting && phase === 0) {
+          // Start the choreography once visible
+          setPhase(1);
+        }
+      },
+      { threshold: 0.5 },
     );
     if (root.current) observer.observe(root.current);
-    const timer = window.setInterval(() => {
-      if (visible && !document.hidden) setPhase((value) => (value + 1) % 3);
-    }, 3200);
-    return () => {
-      observer.disconnect();
-      window.clearInterval(timer);
-    };
-  }, [reduced]);
-  const progress = [20, 40, 60][phase];
+
+    return () => observer.disconnect();
+  }, [reduced, phase]);
+
+  useEffect(() => {
+    if (reduced || phase === 0 || phase >= 5) return;
+    
+    const timings = [0, 1500, 1800, 2000, 1500];
+    const timer = window.setTimeout(() => {
+      setPhase((p) => Math.min(p + 1, 5));
+    }, timings[phase]);
+
+    return () => window.clearTimeout(timer);
+  }, [phase, reduced]);
+
+  const progress = phase >= 5 ? 60 : phase >= 3 ? 40 : 20;
   return (
     <div
       ref={root}
-      className="product-preview overflow-hidden rounded-2xl border border-line bg-white"
+      className="product-preview overflow-hidden rounded-2xl border border-line bg-white shadow-2xl"
     >
-      <div className="flex items-center justify-between bg-dark-product px-5 py-4 text-dark-text">
-        <span className="flex items-center gap-2 text-sm font-semibold">
-          <Layers2 size={17} />
-          Launch workspace
+      <div className="flex items-center justify-between bg-dark-product px-5 py-4 text-dark-text border-b border-white/5 shadow-sm">
+        <span className="flex items-center gap-2 text-[13px] font-semibold tracking-wide">
+          <Layers2 size={16} className="text-accent" />
+          Taskora Workspace
         </span>
-        <span className="flex items-center gap-2 text-[11px] opacity-75">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#72c5a0]" />
-          Project active
-        </span>
+        <div className="flex items-center gap-4">
+          <span className="hidden sm:flex items-center gap-2 text-[11px] font-medium opacity-60">
+            Design Handoff
+          </span>
+          <span className="flex items-center gap-2 text-[11px] font-medium opacity-90">
+            <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px_rgba(23,107,104,0.8)]" />
+            Active
+          </span>
+        </div>
       </div>
-      <div className="grid gap-4 p-4 sm:p-5 xl:grid-cols-[1fr_230px]">
-        <div className="min-w-0">
-          <div className="mb-4 flex items-end justify-between gap-4 border-b border-line pb-4">
+      <div className="grid gap-6 p-5 sm:p-7 xl:grid-cols-[1fr_240px] bg-canvas/30">
+        <div className="min-w-0 flex flex-col">
+          <div className="mb-6 flex items-end justify-between gap-4 border-b border-line pb-5">
             <div>
               <p className="eyebrow mb-2">Website launch</p>
-              <h2 className="text-xl">Tasks in motion</h2>
+              <h2 className="text-xl font-semibold tracking-tight text-ink">Tasks in motion</h2>
             </div>
             <span className="flex -space-x-2">
               {["AK", "RM", "JL"].map((name, index) => (
                 <span
                   key={name}
-                  className={`avatar !border-2 !border-white transition-all ${index <= phase ? "!bg-brand-soft !text-accent" : ""}`}
+                  className={`avatar !h-8 !w-8 !border-2 !border-white transition-colors duration-500 ${phase >= 2 && index === 0 ? "!bg-accent-soft !text-accent shadow-sm z-10" : "z-0"}`}
                 >
                   {name}
                 </span>
               ))}
             </span>
           </div>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-3">
             {tasks.map((task, index) => {
-              const status =
-                index < phase
-                  ? "DONE"
-                  : index === phase
-                    ? "IN_PROGRESS"
-                    : "TODO";
+              // Map phase to specific task statuses
+              let status = "DONE";
+              let showAssignee = true;
+              
+              if (index === 1) {
+                // The main animated task
+                status = phase >= 4 ? "DONE" : phase >= 3 ? "IN_PROGRESS" : "TODO";
+                showAssignee = phase >= 2;
+              } else if (index === 2) {
+                status = "TODO";
+                showAssignee = false;
+              }
+
               return (
                 <div
                   key={task}
-                  className={`task-card transition-all duration-500 ${status === "DONE" ? "completion-pulse" : ""}`}
+                  className={`task-card transition-all duration-700 shadow-sm flex flex-col ${
+                    index === 1 && phase === 1 ? "ring-2 ring-accent ring-offset-2 ring-offset-canvas scale-[1.02]" : ""
+                  } ${status === "DONE" && index === 1 && phase === 4 ? "completion-pulse bg-success-soft/20 border-success/30" : "bg-white"}`}
+                  style={{ opacity: index === 1 && phase === 0 ? 0 : 1, transform: index === 1 && phase === 0 ? "translateY(10px)" : "translateY(0)" }}
                 >
-                  <span className={`badge badge-${status}`}>
+                  <span className={`badge badge-${status} w-fit transition-colors duration-500`}>
                     {status === "DONE"
                       ? "Done"
                       : status === "IN_PROGRESS"
                         ? "In progress"
                         : "To do"}
                   </span>
-                  <p className="mt-4 min-h-10 text-xs leading-relaxed font-semibold">
+                  <p className="mt-4 mb-4 flex-1 text-[13px] leading-relaxed font-semibold text-ink">
                     {task}
                   </p>
-                  <div className="mt-4 flex items-center justify-between border-t border-line pt-3 text-[10px] text-muted">
-                    <span>{status === "DONE" ? "Complete" : "Assigned"}</span>
+                  <div className="mt-auto flex items-center justify-between border-t border-line pt-3 text-[11px] font-medium text-muted">
+                    <span>{status === "DONE" ? "Complete" : showAssignee ? "Assigned" : "Unassigned"}</span>
                     {status === "DONE" ? (
-                      <Check size={14} className="text-success" />
+                      <Check size={16} className="text-success" />
+                    ) : showAssignee ? (
+                      <span className="avatar !h-6 !w-6 !text-[9px] !bg-accent-soft !text-accent">AK</span>
                     ) : (
-                      <span className="avatar !h-6 !w-6 !text-[9px]">AK</span>
+                      <span className="h-6 w-6 rounded-full border border-dashed border-line flex items-center justify-center text-line-strong">+</span>
                     )}
                   </div>
                 </div>
@@ -246,34 +284,34 @@ export function MarketingExperience() {
               >
                 {brand.description}
               </p>
-              <div data-hero className="mt-8 flex flex-wrap gap-3">
-                <Link href="/register" className="btn btn-primary">
+              <div data-hero className="mt-10 flex flex-wrap gap-4 items-center">
+                <Link href="/register" className="btn btn-primary min-h-[48px] px-6 text-sm shadow-sm hover:shadow-md transition-shadow">
                   Create your workspace
                   <ArrowRight size={17} />
                 </Link>
-                <a href="#story" className="btn btn-secondary">
+                <a href="#story" className="btn btn-secondary min-h-[48px] px-6 text-sm">
                   See how it works
                 </a>
               </div>
               <div
                 data-hero
-                className="mt-8 grid max-w-md grid-cols-3 gap-3 text-xs"
+                className="mt-10 grid max-w-md grid-cols-3 gap-6 text-xs border-t border-line pt-6"
               >
                 <div>
-                  <strong className="block text-base text-ink">1 place</strong>
-                  <span className="text-muted">for every plan</span>
+                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">1 place</strong>
+                  <span className="text-muted font-medium">for every plan</span>
                 </div>
                 <div>
-                  <strong className="block text-base text-ink">3 states</strong>
-                  <span className="text-muted">from idea to done</span>
+                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">3 states</strong>
+                  <span className="text-muted font-medium">from idea to done</span>
                 </div>
                 <div>
-                  <strong className="block text-base text-ink">0 noise</strong>
-                  <span className="text-muted">around the work</span>
+                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">0 noise</strong>
+                  <span className="text-muted font-medium">around the work</span>
                 </div>
               </div>
             </div>
-            <div data-stage>
+            <div data-stage className="relative z-10 lg:-ml-6 xl:-ml-12">
               <LivingPreview />
             </div>
           </section>

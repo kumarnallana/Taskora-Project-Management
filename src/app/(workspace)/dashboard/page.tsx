@@ -92,92 +92,134 @@ export default function DashboardPage() {
     <>
       <div className="page-heading">
         <div>
-          <p className="eyebrow !mt-0 !mb-3">Your workspace, at a glance</p>
+          <p className="eyebrow !mt-0 !mb-3">Your workspace</p>
           <h1>Welcome back, {user.name.split(" ")[0]}.</h1>
-          <p>Here’s where things stand. Let’s keep them moving.</p>
+          <p className="mt-3 text-[15px] text-muted">
+            <strong className="font-semibold text-ink">{total - completed} open tasks</strong> across {active} active projects.
+          </p>
         </div>
-        <button className="btn btn-primary" onClick={() => setCreating(true)}>
-          <Plus size={17} />
-          New project
-        </button>
+        <div className="flex gap-3">
+          <Link href="/my-tasks" className="btn btn-secondary hidden sm:inline-flex">
+            View my tasks
+          </Link>
+          <button className="btn btn-primary" onClick={() => setCreating(true)}>
+            <Plus size={17} />
+            New project
+          </button>
+        </div>
       </div>
-      <div className="mb-10 grid grid-cols-2 gap-3 xl:grid-cols-4 xl:gap-5">
-        {stats.map((stat) => (
-          <div key={stat.label} className="card p-4 sm:p-5">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs text-muted">{stat.label}</span>
-              <stat.icon size={17} strokeWidth={1.6} className="text-muted" />
+      <div className="mb-12 grid gap-5 lg:grid-cols-[1.8fr_1fr] xl:grid-cols-[65fr_35fr]">
+        <TaskFlow 
+          todo={total - inProgress - completed} 
+          inProgress={inProgress} 
+          done={completed} 
+        />
+        <div className="card flex flex-col justify-center bg-dark-product p-6 text-dark-text border-transparent shadow-md sm:p-8">
+          <h2 className="eyebrow mb-6 !text-white/50">Workspace Metrics</h2>
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-3 text-sm font-medium text-white/80">
+                <CircleDot size={16} className="text-white/40" /> Open work
+              </span>
+              <span className="text-2xl font-bold tracking-tight">
+                <AnimatedNumber value={total - completed} />
+              </span>
             </div>
-            <p className="mt-5 text-3xl font-semibold tracking-tight">
-              <AnimatedNumber value={stat.value} />
-            </p>
-            <p className="mt-2 text-[11px] text-muted">{stat.detail}</p>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-3 text-sm font-medium text-white/80">
+                <FolderKanban size={16} className="text-amber" /> Active projects
+              </span>
+              <span className="text-2xl font-bold tracking-tight">
+                <AnimatedNumber value={active} />
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-3 text-sm font-medium text-white/80">
+                <Users size={16} className="text-white/40" /> Team
+              </span>
+              <span className="text-2xl font-bold tracking-tight">
+                <AnimatedNumber value={team.size} />
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-3 text-sm font-medium text-white/80">
+                <CheckCheck size={16} className="text-success" /> Completed
+              </span>
+              <span className="text-2xl font-bold tracking-tight">
+                <AnimatedNumber value={completed} />
+              </span>
+            </div>
           </div>
-        ))}
+        </div>
       </div>
-      <section>
-        <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-lg tracking-tight">Recent projects</h2>
-          <Link
-            href="/projects"
-            className="flex min-h-11 items-center gap-2 text-xs font-medium text-muted"
-          >
-            All projects
-            <ArrowRight size={15} />
-          </Link>
-        </div>
-        {projects.length ? (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {projects.slice(0, 3).map((project) => (
-              <ProjectCard key={project.id} project={project} />
-            ))}
-          </div>
-        ) : (
-          <EmptyState
-            title="Start with a project."
-            description="Your dashboard will take shape as you create projects and work with your team."
-          >
-            <button
-              className="btn btn-primary"
-              onClick={() => setCreating(true)}
+      <div className="grid gap-10 lg:grid-cols-2 lg:gap-8">
+        <section>
+          <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
+            <div>
+              <h2 className="text-lg tracking-tight">Active Projects</h2>
+              <p className="mt-1 text-[13px] text-muted">What's moving right now</p>
+            </div>
+            <Link
+              href="/projects"
+              className="flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-ink transition-colors pb-1"
             >
-              Create a project
-              <Plus size={16} />
-            </button>
-          </EmptyState>
-        )}
-      </section>
-      <section className="mt-10">
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg tracking-tight">Your next moves</h2>
-            <p className="mt-1.5 text-xs text-muted">
-              Open tasks assigned to you.
-            </p>
+              View all
+              <ArrowRight size={15} />
+            </Link>
           </div>
-          <Link
-            href="/my-tasks"
-            className="flex min-h-11 items-center gap-2 text-xs font-medium text-muted"
-          >
-            My Tasks
-            <ArrowRight size={15} />
-          </Link>
-        </div>
-        {assigned.length ? (
-          <TaskList
-            tasks={assigned}
-            onUpdated={() => {
-              void refreshTasks();
-              void refreshProjects();
-            }}
-          />
-        ) : (
-          <EmptyState
-            title="A clear view ahead."
-            description="You have no open assigned tasks. Pick up work from a project, or take a moment to enjoy the progress."
-          />
-        )}
-      </section>
+          {projects.length ? (
+            <div className="grid gap-4">
+              {projects.slice(0, 3).map((project) => (
+                <ProjectCard key={project.id} project={project} />
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="Start with a project."
+              description="Plan your first project and give your work a home."
+            >
+              <button
+                className="btn btn-primary mt-2"
+                onClick={() => setCreating(true)}
+              >
+                Create a project
+              </button>
+            </EmptyState>
+          )}
+        </section>
+
+        <section>
+          <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
+            <div>
+              <h2 className="text-lg tracking-tight">Next Actions</h2>
+              <p className="mt-1 text-[13px] text-muted">Open tasks assigned to you</p>
+            </div>
+            <Link
+              href="/my-tasks"
+              className="flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-ink transition-colors pb-1"
+            >
+              My Tasks
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+          {assigned.length ? (
+            <div className="card bg-white p-2">
+              <TaskList
+                tasks={assigned}
+                onUpdated={() => {
+                  void refreshTasks();
+                  void refreshProjects();
+                }}
+              />
+            </div>
+          ) : (
+            <EmptyState
+              title="A clear view ahead."
+              description="You have no open assigned tasks. Enjoy the progress."
+            />
+          )}
+        </section>
+      </div>
       {creating && (
         <ProjectForm
           onClose={() => setCreating(false)}

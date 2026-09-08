@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, GripVertical } from "lucide-react";
 import { statuses } from "@data/tasks";
 import type { MyTask, TaskStatus } from "@/types/domain";
 import { tasksApi } from "@/services/api/tasks";
@@ -30,21 +30,24 @@ export function TaskList({
               animate={{ opacity: 1, y: 0 }}
               exit={reduced ? undefined : { opacity: 0, y: -6 }}
               key={task.id}
-              className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center"
+              className="group flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center bg-white hover:bg-canvas/50 transition-colors"
             >
-              <Link
-                href={`/projects/${task.projectId}?tab=tasks&task=${task.id}`}
-                className="group min-w-0"
-              >
-                <h3 className="flex items-start gap-2 text-sm">
-                  <span className="break-words">{task.title}</span>
-                  <ArrowUpRight
-                    size={14}
-                    className="shrink-0 text-muted group-hover:text-accent"
-                  />
-                </h3>
-                <p className="mt-1.5 text-xs text-muted">{task.project.name}</p>
-              </Link>
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <GripVertical size={16} className="shrink-0 text-line-strong opacity-0 transition-opacity group-hover:opacity-100 cursor-grab hidden sm:block" />
+                <Link
+                  href={`/projects/${task.projectId}?tab=tasks&task=${task.id}`}
+                  className="min-w-0 flex-1"
+                >
+                  <h3 className="flex items-start gap-2 text-[14px] font-semibold text-ink">
+                    <span className="break-words">{task.title}</span>
+                    <ArrowUpRight
+                      size={14}
+                      className="shrink-0 text-muted transition-colors group-hover:text-accent"
+                    />
+                  </h3>
+                  <p className="mt-1.5 text-xs font-medium text-muted">{task.project.name}</p>
+                </Link>
+              </div>
               <label>
                 <span className="sr-only">Status for {task.title}</span>
                 <select

@@ -5,15 +5,15 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="project-card card flex min-w-0 flex-col p-6"
+      className="project-card group card flex min-w-0 flex-col p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:border-line-strong bg-white"
     >
-      <div className="mb-5 flex items-center justify-between">
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-canvas text-muted">
-          <FolderKanban size={21} strokeWidth={1.5} />
+      <div className="mb-6 flex items-center justify-between">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-canvas text-muted transition-colors group-hover:bg-accent-soft group-hover:text-accent">
+          <FolderKanban size={20} strokeWidth={1.8} />
         </span>
-        <ArrowUpRight size={18} className="text-muted" />
+        <ArrowUpRight size={18} className="text-muted transition-colors group-hover:text-ink" />
       </div>
-      <h2 className="truncate text-base">{project.name}</h2>
+      <h2 className="truncate text-[17px] font-semibold tracking-tight text-ink">{project.name}</h2>
       <p className="mt-2 mb-6 line-clamp-2 min-h-10 text-xs leading-relaxed text-muted">
         {project.description || "A fresh project, ready to take shape."}
       </p>

@@ -51,12 +51,15 @@ export function EmptyState({
   children?: ReactNode;
 }) {
   return (
-    <div className="card flex flex-col items-center px-5 py-14 text-center">
-      <span className="mb-5 rounded-xl bg-canvas p-4 text-muted">
-        <FolderOpen size={26} strokeWidth={1.4} />
-      </span>
-      <h2 className="text-lg">{title}</h2>
-      <p className="mt-2 mb-6 max-w-sm leading-relaxed text-muted">
+    <div className="card flex flex-col items-center justify-center p-12 text-center shadow-sm border border-line bg-canvas/30 min-h-[300px]">
+      <div className="relative mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-white shadow-sm ring-1 ring-line">
+        <div className="absolute -right-2 -top-2 flex h-8 w-8 items-center justify-center rounded-full bg-canvas ring-4 ring-white">
+          <FolderOpen size={14} className="text-muted" />
+        </div>
+        <div className="h-2 w-8 rounded-full bg-line-strong opacity-20" />
+      </div>
+      <h2 className="text-lg font-semibold tracking-tight text-ink">{title}</h2>
+      <p className="mt-2 mb-6 max-w-sm text-[15px] leading-relaxed text-muted">
         {description}
       </p>
       {children}
