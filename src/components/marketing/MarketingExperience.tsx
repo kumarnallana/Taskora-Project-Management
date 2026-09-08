@@ -113,6 +113,31 @@ function LivingPreview() {
     );
   };
 
+  const StaticCard = ({ status, title, desc, assignedTo }: { status: "TODO" | "IN_PROGRESS" | "DONE", title: string, desc: string, assignedTo?: string }) => {
+    const isDone = status === "DONE";
+    const isDoing = status === "IN_PROGRESS";
+    return (
+      <div className={`relative rounded-xl border p-5 shadow-sm ${isDone ? "bg-success-soft/10 border-success/20 opacity-80" : "bg-white border-line opacity-90"}`}>
+        <div className="flex justify-between items-start mb-4">
+          <span className={`badge ${isDone ? "badge-success" : isDoing ? "badge-amber" : "badge-TODO"}`}>
+            {isDone ? "Complete" : isDoing ? "In Progress" : "To do"}
+          </span>
+          {assignedTo && (
+            <div className={`avatar !h-8 !w-8 !text-[11px] font-bold ${isDone ? "!bg-success-soft !text-success" : "!bg-surface-strong !text-muted"} ring-4 ring-white shadow-sm`}>
+              {assignedTo}
+            </div>
+          )}
+        </div>
+        <h4 className="text-[14px] font-semibold text-ink leading-snug mb-1">{title}</h4>
+        <p className="text-[12px] text-muted leading-relaxed line-clamp-2">{desc}</p>
+        <div className="mt-4 pt-3 flex items-center justify-between border-t border-line border-dashed text-[11px] font-medium text-muted">
+          <span>{isDone ? "Delivered" : assignedTo ? `Assigned to ${assignedTo}` : "Unassigned"}</span>
+          {isDone && <Check size={14} className="text-success" />}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       ref={root}
@@ -129,7 +154,7 @@ function LivingPreview() {
               <Users size={14} className="opacity-70" />
               <span>3 Members</span>
               <span className="h-1 w-1 rounded-full bg-line-strong" />
-              <span>1 Active Task</span>
+              <span>4 Active Tasks</span>
             </p>
           </div>
         </div>
@@ -156,9 +181,14 @@ function LivingPreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             To Do 
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase < 3 ? "1" : "0"}
+              {phase < 3 ? "2" : "1"}
             </span>
           </h3>
+          <StaticCard 
+             status="TODO" 
+             title="Define target audience" 
+             desc="Document primary user personas and core use cases for the marketing site."
+          />
           {phase > 0 && phase < 3 && <TaskCard />}
         </div>
         
@@ -167,10 +197,16 @@ function LivingPreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             In Progress 
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase === 3 ? "1" : "0"}
+              {phase === 3 ? "2" : "1"}
             </span>
           </h3>
           {phase === 3 && <TaskCard />}
+          <StaticCard 
+             status="IN_PROGRESS" 
+             title="Design social assets" 
+             desc="Create standard graphics for Twitter, LinkedIn, and blog feature images."
+             assignedTo="RM"
+          />
         </div>
 
         {/* Done Column */}
@@ -178,10 +214,16 @@ function LivingPreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             Done 
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase >= 4 ? "1" : "0"}
+              {phase >= 4 ? "2" : "1"}
             </span>
           </h3>
           {phase >= 4 && <TaskCard />}
+          <StaticCard 
+             status="DONE" 
+             title="Finalize brand guidelines" 
+             desc="Update logo spacing rules and approve the new color palette constraints."
+             assignedTo="JL"
+          />
         </div>
       </div>
     </div>
