@@ -33,101 +33,429 @@ const steps = [
     state: "60% delivered",
   },
 ];
-import { Database, Cpu, LayoutDashboard, BarChart3 } from "lucide-react";
-
-function DataPipelinePreview() {
-  const reduced = useReducedMotion();
+function HeroTaskCard({ step }: { step: number }) {
+  const isDone = step >= 4;
+  const isInProgress = step === 3;
+  const isAssigned = step >= 2;
 
   return (
-    <div className="product-preview relative overflow-hidden rounded-[2rem] border border-line bg-dark-product shadow-2xl min-h-[460px]">
-      
-      {/* Background Grid */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
-
-      {!reduced && (
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes pulseLine1 {
-            0%, 100% { stroke: rgba(255,255,255,0.05); }
-            10%, 25% { stroke: rgba(23,107,104,0.5); }
-          }
-          @keyframes pulseLine2 {
-            0%, 100% { stroke: rgba(255,255,255,0.05); }
-            40%, 60% { stroke: rgba(23,107,104,0.5); }
-          }
-          @keyframes movePacket1 {
-            0% { left: 15%; top: 50%; opacity: 0; transform: scale(0.5); }
-            5% { opacity: 1; transform: scale(1); }
-            25% { left: 50%; top: 50%; opacity: 1; transform: scale(1); }
-            26%, 100% { opacity: 0; transform: scale(0.5); }
-          }
-          @keyframes movePacket2 {
-            0%, 37% { left: 50%; top: 50%; opacity: 0; transform: scale(0.5); }
-            38% { opacity: 1; transform: scale(1); }
-            62% { left: 85%; top: 25%; opacity: 1; transform: scale(1); }
-            63%, 100% { opacity: 0; transform: scale(0.5); }
-          }
-          @keyframes movePacket3 {
-            0%, 37% { left: 50%; top: 50%; opacity: 0; transform: scale(0.5); }
-            38% { opacity: 1; transform: scale(1); }
-            62% { left: 85%; top: 75%; opacity: 1; transform: scale(1); }
-            63%, 100% { opacity: 0; transform: scale(0.5); }
-          }
-          @keyframes nodeProcessor {
-            0%, 25%, 100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.02); }
-            30%, 40% { box-shadow: 0 0 30px rgba(23,107,104,0.3); border-color: rgba(23,107,104,0.6); background-color: rgba(23,107,104,0.1); }
-          }
-          @keyframes nodeDest {
-            0%, 62%, 100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.02); }
-            66%, 76% { box-shadow: 0 0 25px rgba(23,107,104,0.2); border-color: rgba(23,107,104,0.4); background-color: rgba(23,107,104,0.05); }
-          }
-        `}} />
-      )}
-
-      {/* SVG Connecting Lines */}
-      <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
-        <line x1="15%" y1="50%" x2="50%" y2="50%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine1 4s infinite' }} />
-        <line x1="50%" y1="50%" x2="85%" y2="25%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine2 4s infinite' }} />
-        <line x1="50%" y1="50%" x2="85%" y2="75%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine2 4s infinite' }} />
-      </svg>
-
-      {/* Data Packets */}
-      {!reduced && (
-        <>
-          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket1 4s infinite' }} />
-          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket2 4s infinite' }} />
-          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket3 4s infinite' }} />
-        </>
-      )}
-
-      {/* Nodes (Pods) */}
-      <div className="absolute left-[15%] top-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3">
-          <Database size={24} />
-        </div>
-        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Data Source</span>
+    <motion.div
+      layoutId="preview-hero-task"
+      transition={{
+        type: "spring",
+        stiffness: 350,
+        damping: 32,
+        mass: 0.8,
+      }}
+      className={`relative rounded-xl border p-4 shadow-sm transition-colors duration-300 ${
+        isDone
+          ? "border-success/40 bg-success-soft/30"
+          : isInProgress
+          ? "border-amber/40 bg-white ring-1 ring-amber/20"
+          : "border-line bg-white"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span
+          className={`badge ${
+            isDone
+              ? "badge-DONE"
+              : isInProgress
+              ? "badge-IN_PROGRESS"
+              : "badge-TODO"
+          }`}
+        >
+          {isDone ? "Completed" : isInProgress ? "In Progress" : "To Do"}
+        </span>
+        <span className="text-[11px] font-medium text-muted">Core</span>
       </div>
 
-      <div className="absolute left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
-        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-accent mb-3" style={{ animation: reduced ? 'none' : 'nodeProcessor 4s infinite' }}>
-          <Cpu size={32} />
+      <h4 className="text-[13px] sm:text-sm font-semibold text-ink leading-snug">
+        Build project workspace
+      </h4>
+      <p className="mt-1 text-[11px] sm:text-xs text-muted leading-relaxed line-clamp-2">
+        Configure boards, permission tiers, and team milestone tracking.
+      </p>
+
+      <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-line/60 text-xs">
+        <div className="flex items-center gap-1.5 min-h-[24px]">
+          {isAssigned ? (
+            <motion.div
+              key="assigned"
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 450, damping: 25 }}
+              className="flex items-center gap-1.5"
+            >
+              <div className="h-5 w-5 rounded-full bg-accent text-white flex items-center justify-center text-[9px] font-bold shadow-xs">
+                AR
+              </div>
+              <span className="text-[11px] font-medium text-ink">Alex Rivera</span>
+            </motion.div>
+          ) : (
+            <span className="text-[11px] font-normal text-muted/70 flex items-center gap-1.5">
+              <span className="h-1.5 w-1.5 rounded-full bg-line-strong" />
+              Unassigned
+            </span>
+          )}
         </div>
-        <span className="text-[10px] sm:text-[11px] font-bold text-white/70 tracking-widest uppercase whitespace-nowrap">Taskora Engine</span>
+
+        {isDone ? (
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 400, damping: 20 }}
+            className="flex items-center gap-1 text-[11px] font-semibold text-success"
+          >
+            <Check size={13} strokeWidth={3} />
+            Delivered
+          </motion.div>
+        ) : (
+          <span className="text-[11px] font-medium text-muted/60">P1</span>
+        )}
+      </div>
+    </motion.div>
+  );
+}
+
+function StaticCard({
+  status,
+  title,
+  desc,
+  tag,
+  assignee,
+  isCompleted,
+}: {
+  status: "TODO" | "IN_PROGRESS" | "DONE";
+  title: string;
+  desc: string;
+  tag: string;
+  assignee?: { initials: string; name: string };
+  isCompleted?: boolean;
+}) {
+  return (
+    <div
+      className={`rounded-xl border p-4 shadow-xs transition-opacity ${
+        isCompleted
+          ? "border-line/60 bg-surface/80 opacity-90"
+          : "border-line bg-white"
+      }`}
+    >
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <span
+          className={`badge ${
+            status === "DONE"
+              ? "badge-DONE"
+              : status === "IN_PROGRESS"
+              ? "badge-IN_PROGRESS"
+              : "badge-TODO"
+          }`}
+        >
+          {status === "DONE"
+            ? "Completed"
+            : status === "IN_PROGRESS"
+            ? "In Progress"
+            : "To Do"}
+        </span>
+        <span className="text-[11px] font-medium text-muted/70">{tag}</span>
+      </div>
+      <h4 className="text-[13px] sm:text-sm font-semibold text-ink leading-snug">
+        {title}
+      </h4>
+      <p className="mt-1 text-[11px] sm:text-xs text-muted leading-relaxed line-clamp-2">
+        {desc}
+      </p>
+      <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-line/60 text-xs">
+        {assignee ? (
+          <div className="flex items-center gap-1.5 min-h-[24px]">
+            <div className="h-5 w-5 rounded-full bg-surface-muted text-muted font-bold text-[9px] flex items-center justify-center border border-line">
+              {assignee.initials}
+            </div>
+            <span className="text-[11px] font-medium text-muted">
+              {assignee.name}
+            </span>
+          </div>
+        ) : (
+          <span className="text-[11px] font-normal text-muted/70 flex items-center gap-1.5 min-h-[24px]">
+            <span className="h-1.5 w-1.5 rounded-full bg-line-strong" />
+            Unassigned
+          </span>
+        )}
+        {isCompleted && (
+          <span className="flex items-center gap-1 text-[11px] font-medium text-success">
+            <Check size={13} strokeWidth={2.5} />
+            Delivered
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ProductWorkspacePreview() {
+  const reduced = useReducedMotion();
+  const [step, setStep] = useState(reduced ? 5 : 1);
+  const [mobileColumn, setMobileColumn] = useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
+
+  useEffect(() => {
+    if (reduced) {
+      setStep(5);
+      setMobileColumn("DONE");
+      return;
+    }
+
+    const t1 = setTimeout(() => {
+      setStep(2);
+    }, 1400);
+
+    const t2 = setTimeout(() => {
+      setStep(3);
+      setMobileColumn("IN_PROGRESS");
+    }, 3000);
+
+    const t3 = setTimeout(() => {
+      setStep(4);
+      setMobileColumn("DONE");
+    }, 4800);
+
+    const t4 = setTimeout(() => {
+      setStep(5);
+    }, 6000);
+
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+    };
+  }, [reduced]);
+
+  return (
+    <div className="product-preview overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-2xl">
+      {/* Window Chrome Header */}
+      <div className="flex items-center justify-between border-b border-line bg-surface-muted/50 px-4 py-2.5 text-xs">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-line-strong/80" />
+            <span className="h-2 w-2 rounded-full bg-line-strong/80" />
+            <span className="h-2 w-2 rounded-full bg-line-strong/80" />
+          </div>
+          <span className="ml-1.5 font-semibold text-ink/80">Taskora Workspace</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold text-accent">
+            Sprint 3
+          </span>
+          <span className="hidden sm:inline text-muted font-medium">Website launch</span>
+        </div>
       </div>
 
-      <div className="absolute left-[85%] top-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3" style={{ animation: reduced ? 'none' : 'nodeDest 4s infinite' }}>
-          <LayoutDashboard size={24} />
+      {/* Project Meta Bar */}
+      <div className="border-b border-line/70 bg-white px-5 py-4 sm:px-6 sm:py-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent shrink-0 shadow-xs">
+              <Layers2 size={22} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base sm:text-lg font-bold tracking-tight text-ink">Website Launch</h2>
+                <span className="badge badge-TODO !text-[10px] !py-0.5 !px-2">Sprint</span>
+              </div>
+              <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-xs text-muted">
+                <span>3 members · 5 tasks</span>
+                <span className="h-1 w-1 rounded-full bg-line-strong" />
+                <div className="flex items-center -space-x-1.5">
+                  <div
+                    className="h-5 w-5 rounded-full bg-accent text-white flex items-center justify-center text-[9px] font-bold border-2 border-white shadow-xs"
+                    title="Alex Rivera"
+                  >
+                    AR
+                  </div>
+                  <div
+                    className="h-5 w-5 rounded-full bg-ink text-white flex items-center justify-center text-[9px] font-bold border-2 border-white shadow-xs"
+                    title="Sasi Kumar"
+                  >
+                    SK
+                  </div>
+                  <div
+                    className="h-5 w-5 rounded-full bg-surface-muted text-muted flex items-center justify-center text-[9px] font-bold border-2 border-white shadow-xs"
+                    title="+2 members"
+                  >
+                    +2
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Progress Tracking Widget (40% -> 60%) */}
+          <div className="w-full sm:w-52 shrink-0">
+            <div className="mb-1.5 flex items-center justify-between text-[11px] font-bold tracking-wider uppercase">
+              <span className="text-muted">Progress</span>
+              <span className="font-bold text-accent transition-colors duration-500">
+                {step >= 5 ? "60%" : "40%"}
+              </span>
+            </div>
+            <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted border border-line/50">
+              <motion.div
+                className="h-full bg-accent rounded-full"
+                initial={false}
+                animate={{ width: step >= 5 ? "60%" : "40%" }}
+                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+              />
+            </div>
+          </div>
         </div>
-        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Dashboard</span>
       </div>
 
-      <div className="absolute left-[85%] top-[75%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
-        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3" style={{ animation: reduced ? 'none' : 'nodeDest 4s infinite' }}>
-          <BarChart3 size={24} />
-        </div>
-        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Analytics</span>
+      {/* Mobile Column Tabs (< 768px) */}
+      <div className="sm:hidden flex border-b border-line bg-surface-muted/30 p-1.5 gap-1 text-xs">
+        {(["TODO", "IN_PROGRESS", "DONE"] as const).map((col) => {
+          const label = col === "TODO" ? "To Do" : col === "IN_PROGRESS" ? "In Progress" : "Done";
+          const count =
+            col === "TODO"
+              ? step <= 2
+                ? 2
+                : 1
+              : col === "IN_PROGRESS"
+              ? step === 3
+                ? 2
+                : 1
+              : step >= 4
+              ? 3
+              : 2;
+          const isActive = mobileColumn === col;
+          return (
+            <button
+              key={col}
+              type="button"
+              onClick={() => setMobileColumn(col)}
+              className={`flex-1 py-1.5 px-2 text-center font-semibold rounded-lg text-[11px] transition-colors flex items-center justify-center gap-1.5 ${
+                isActive
+                  ? "bg-white text-ink shadow-xs border border-line"
+                  : "text-muted hover:text-ink"
+              }`}
+            >
+              <span>{label}</span>
+              <span className="text-[10px] opacity-70">({count})</span>
+            </button>
+          );
+        })}
       </div>
 
+      {/* Mobile Single Column View */}
+      <div className="sm:hidden p-4 bg-canvas/40 min-h-[290px] flex flex-col gap-3">
+        {mobileColumn === "TODO" && (
+          <>
+            {step <= 2 && <HeroTaskCard step={step} />}
+            <StaticCard
+              status="TODO"
+              title="Release notes v1.2"
+              desc="Compile change summary for the upcoming launch."
+              tag="Docs"
+            />
+          </>
+        )}
+        {mobileColumn === "IN_PROGRESS" && (
+          <>
+            {step === 3 && <HeroTaskCard step={step} />}
+            <StaticCard
+              status="IN_PROGRESS"
+              title="Design hero system"
+              desc="Finalize visual tokens and responsive layout."
+              tag="Design"
+              assignee={{ initials: "SK", name: "Sasi" }}
+            />
+          </>
+        )}
+        {mobileColumn === "DONE" && (
+          <>
+            {step >= 4 && <HeroTaskCard step={step} />}
+            <StaticCard
+              status="DONE"
+              title="User flow audit"
+              desc="All 5 core activation paths verified."
+              tag="QA"
+              assignee={{ initials: "JL", name: "Jess" }}
+              isCompleted
+            />
+            <StaticCard
+              status="DONE"
+              title="Define brand tokens"
+              desc="Approved color system and spacing scale."
+              tag="Design"
+              assignee={{ initials: "AR", name: "Alex" }}
+              isCompleted
+            />
+          </>
+        )}
+      </div>
+
+      {/* Desktop / Tablet 3-Column Board (>= 640px) */}
+      <div className="hidden sm:grid sm:grid-cols-3 gap-4 p-5 sm:p-6 bg-canvas/40 min-h-[380px]">
+        {/* Column 1: TO DO */}
+        <div className="flex flex-col gap-3">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            <span>To Do</span>
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
+              {step <= 2 ? 2 : 1}
+            </span>
+          </h3>
+          {step <= 2 && <HeroTaskCard step={step} />}
+          <StaticCard
+            status="TODO"
+            title="Release notes v1.2"
+            desc="Compile change summary for the upcoming launch."
+            tag="Docs"
+          />
+        </div>
+
+        {/* Column 2: IN PROGRESS */}
+        <div className="flex flex-col gap-3">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            <span>In Progress</span>
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
+              {step === 3 ? 2 : 1}
+            </span>
+          </h3>
+          {step === 3 && <HeroTaskCard step={step} />}
+          <StaticCard
+            status="IN_PROGRESS"
+            title="Design hero system"
+            desc="Finalize visual tokens and responsive layout."
+            tag="Design"
+            assignee={{ initials: "SK", name: "Sasi" }}
+          />
+        </div>
+
+        {/* Column 3: DONE */}
+        <div className="flex flex-col gap-3">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            <span>Done</span>
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
+              {step >= 4 ? 3 : 2}
+            </span>
+          </h3>
+          {step >= 4 && <HeroTaskCard step={step} />}
+          <StaticCard
+            status="DONE"
+            title="User flow audit"
+            desc="All 5 core activation paths verified."
+            tag="QA"
+            assignee={{ initials: "JL", name: "Jess" }}
+            isCompleted
+          />
+          <StaticCard
+            status="DONE"
+            title="Define brand tokens"
+            desc="Approved color system and spacing scale."
+            tag="Design"
+            assignee={{ initials: "AR", name: "Alex" }}
+            isCompleted
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -237,7 +565,7 @@ export function MarketingExperience() {
               </div>
             </div>
             <div data-stage className="relative z-10 w-full">
-              <DataPipelinePreview />
+              <ProductWorkspacePreview />
             </div>
           </section>
           <section
