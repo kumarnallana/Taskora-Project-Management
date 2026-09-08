@@ -33,199 +33,101 @@ const steps = [
     state: "60% delivered",
   },
 ];
-function LivingPreview() {
-  const [phase, setPhase] = useState(0);
+import { Database, Cpu, LayoutDashboard, BarChart3 } from "lucide-react";
+
+function DataPipelinePreview() {
   const reduced = useReducedMotion();
-  const root = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (reduced) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && phase === 0) setPhase(1);
-      },
-      { threshold: 0.5 },
-    );
-    if (root.current) observer.observe(root.current);
-    return () => observer.disconnect();
-  }, [reduced, phase]);
-
-  useEffect(() => {
-    if (reduced || phase === 0 || phase >= 5) return;
-    const timings = [0, 1500, 1800, 2000, 1500];
-    const timer = window.setTimeout(() => {
-      setPhase((p) => Math.min(p + 1, 5));
-    }, timings[phase]);
-    return () => window.clearTimeout(timer);
-  }, [phase, reduced]);
-
-  const TaskCard = () => {
-    const isDone = phase >= 4;
-    const isDoing = phase === 3;
-    
-    return (
-      <motion.div
-        layoutId="marketing-task"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ type: "spring", bounce: 0, duration: 0.6 }}
-        className={`relative rounded-xl border p-5 shadow-sm transition-colors duration-500 ${
-          isDone ? "bg-success-soft/30 border-success/30" : "bg-white border-line shadow-md"
-        }`}
-      >
-        <div className="flex justify-between items-start mb-4">
-          <span className={`badge ${isDone ? "badge-success" : isDoing ? "badge-amber" : "badge-TODO"}`}>
-            {isDone ? "Complete" : isDoing ? "In Progress" : "To do"}
-          </span>
-          <AnimatePresence>
-            {phase >= 2 && (
-              <motion.div
-                layoutId="marketing-avatar"
-                initial={{ scale: 0, opacity: 0, rotate: -45 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                className="avatar !h-8 !w-8 !text-[11px] font-bold !bg-accent !text-white ring-4 ring-white shadow-sm"
-              >
-                AK
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-        <h4 className="text-[15px] font-semibold text-ink leading-snug mb-1">
-          Prepare launch assets
-        </h4>
-        <p className="text-[13px] text-muted leading-relaxed line-clamp-2">
-          Compile all final marketing materials, including screenshots and social copy.
-        </p>
-        <div className="mt-5 pt-4 flex items-center justify-between border-t border-line border-dashed text-[12px] font-medium text-muted">
-          <span>{isDone ? "Delivered" : phase >= 2 ? "Assigned to Alex" : "Unassigned"}</span>
-          {isDone && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", bounce: 0.4 }}
-            >
-              <Check size={16} className="text-success" strokeWidth={3} />
-            </motion.div>
-          )}
-        </div>
-      </motion.div>
-    );
-  };
-
-  const StaticCard = ({ status, title, desc, assignedTo }: { status: "TODO" | "IN_PROGRESS" | "DONE", title: string, desc: string, assignedTo?: string }) => {
-    const isDone = status === "DONE";
-    const isDoing = status === "IN_PROGRESS";
-    return (
-      <div className={`relative rounded-xl border p-5 shadow-sm ${isDone ? "bg-success-soft/10 border-success/20 opacity-80" : "bg-white border-line opacity-90"}`}>
-        <div className="flex justify-between items-start mb-4">
-          <span className={`badge ${isDone ? "badge-success" : isDoing ? "badge-amber" : "badge-TODO"}`}>
-            {isDone ? "Complete" : isDoing ? "In Progress" : "To do"}
-          </span>
-          {assignedTo && (
-            <div className={`avatar !h-8 !w-8 !text-[11px] font-bold ${isDone ? "!bg-success-soft !text-success" : "!bg-surface-strong !text-muted"} ring-4 ring-white shadow-sm`}>
-              {assignedTo}
-            </div>
-          )}
-        </div>
-        <h4 className="text-[14px] font-semibold text-ink leading-snug mb-1">{title}</h4>
-        <p className="text-[12px] text-muted leading-relaxed line-clamp-2">{desc}</p>
-        <div className="mt-4 pt-3 flex items-center justify-between border-t border-line border-dashed text-[11px] font-medium text-muted">
-          <span>{isDone ? "Delivered" : assignedTo ? `Assigned to ${assignedTo}` : "Unassigned"}</span>
-          {isDone && <Check size={14} className="text-success" />}
-        </div>
-      </div>
-    );
-  };
 
   return (
-    <div
-      ref={root}
-      className="product-preview overflow-hidden rounded-[2rem] border border-line bg-white shadow-2xl"
-    >
-      <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-line/60 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex items-center gap-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent shadow-sm">
-            <Layers2 size={24} />
-          </div>
-          <div>
-            <h2 className="text-base font-bold tracking-tight text-ink">Website Launch</h2>
-            <p className="mt-0.5 flex items-center gap-2 text-[12px] font-medium text-muted">
-              <Users size={14} className="opacity-70" />
-              <span>3 Members</span>
-              <span className="h-1 w-1 rounded-full bg-line-strong" />
-              <span>4 Active Tasks</span>
-            </p>
-          </div>
-        </div>
-        <div className="w-full sm:w-56">
-          <div className="mb-2 flex justify-between text-[11px] font-bold tracking-wider uppercase text-muted">
-            <span>Progress</span>
-            <span className={`transition-colors duration-500 ${phase >= 4 ? "text-success" : ""}`}>
-              {phase >= 4 ? "100%" : phase >= 3 ? "50%" : "0%"}
-            </span>
-          </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
-            <motion.div
-              className="h-full bg-success"
-              initial={{ width: "0%" }}
-              animate={{ width: phase >= 4 ? "100%" : phase >= 3 ? "50%" : "0%" }}
-              transition={{ type: "spring", bounce: 0, duration: 1 }}
-            />
-          </div>
-        </div>
-      </div>
-      <div className="grid gap-6 p-6 sm:p-8 sm:grid-cols-3 bg-canvas/40 min-h-[380px]">
-        {/* To Do Column */}
-        <div className="flex flex-col gap-4">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            To Do 
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase < 3 ? "2" : "1"}
-            </span>
-          </h3>
-          <StaticCard 
-             status="TODO" 
-             title="Define target audience" 
-             desc="Document primary user personas and core use cases for the marketing site."
-          />
-          {phase > 0 && phase < 3 && <TaskCard />}
-        </div>
-        
-        {/* In Progress Column */}
-        <div className="flex flex-col gap-4">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            In Progress 
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase === 3 ? "2" : "1"}
-            </span>
-          </h3>
-          {phase === 3 && <TaskCard />}
-          <StaticCard 
-             status="IN_PROGRESS" 
-             title="Design social assets" 
-             desc="Create standard graphics for Twitter, LinkedIn, and blog feature images."
-             assignedTo="RM"
-          />
-        </div>
+    <div className="product-preview relative overflow-hidden rounded-[2rem] border border-line bg-dark-product shadow-2xl min-h-[460px]">
+      
+      {/* Background Grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px]" />
 
-        {/* Done Column */}
-        <div className="flex flex-col gap-4">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            Done 
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
-              {phase >= 4 ? "2" : "1"}
-            </span>
-          </h3>
-          {phase >= 4 && <TaskCard />}
-          <StaticCard 
-             status="DONE" 
-             title="Finalize brand guidelines" 
-             desc="Update logo spacing rules and approve the new color palette constraints."
-             assignedTo="JL"
-          />
+      {!reduced && (
+        <style dangerouslySetInnerHTML={{ __html: `
+          @keyframes pulseLine1 {
+            0%, 100% { stroke: rgba(255,255,255,0.05); }
+            10%, 25% { stroke: rgba(23,107,104,0.5); }
+          }
+          @keyframes pulseLine2 {
+            0%, 100% { stroke: rgba(255,255,255,0.05); }
+            40%, 60% { stroke: rgba(23,107,104,0.5); }
+          }
+          @keyframes movePacket1 {
+            0% { left: 15%; top: 50%; opacity: 0; transform: scale(0.5); }
+            5% { opacity: 1; transform: scale(1); }
+            25% { left: 50%; top: 50%; opacity: 1; transform: scale(1); }
+            26%, 100% { opacity: 0; transform: scale(0.5); }
+          }
+          @keyframes movePacket2 {
+            0%, 37% { left: 50%; top: 50%; opacity: 0; transform: scale(0.5); }
+            38% { opacity: 1; transform: scale(1); }
+            62% { left: 85%; top: 25%; opacity: 1; transform: scale(1); }
+            63%, 100% { opacity: 0; transform: scale(0.5); }
+          }
+          @keyframes movePacket3 {
+            0%, 37% { left: 50%; top: 50%; opacity: 0; transform: scale(0.5); }
+            38% { opacity: 1; transform: scale(1); }
+            62% { left: 85%; top: 75%; opacity: 1; transform: scale(1); }
+            63%, 100% { opacity: 0; transform: scale(0.5); }
+          }
+          @keyframes nodeProcessor {
+            0%, 25%, 100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.02); }
+            30%, 40% { box-shadow: 0 0 30px rgba(23,107,104,0.3); border-color: rgba(23,107,104,0.6); background-color: rgba(23,107,104,0.1); }
+          }
+          @keyframes nodeDest {
+            0%, 62%, 100% { box-shadow: 0 0 0px transparent; border-color: rgba(255,255,255,0.05); background-color: rgba(255,255,255,0.02); }
+            66%, 76% { box-shadow: 0 0 25px rgba(23,107,104,0.2); border-color: rgba(23,107,104,0.4); background-color: rgba(23,107,104,0.05); }
+          }
+        `}} />
+      )}
+
+      {/* SVG Connecting Lines */}
+      <svg className="absolute inset-0 w-full h-full pointer-events-none" preserveAspectRatio="none">
+        <line x1="15%" y1="50%" x2="50%" y2="50%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine1 4s infinite' }} />
+        <line x1="50%" y1="50%" x2="85%" y2="25%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine2 4s infinite' }} />
+        <line x1="50%" y1="50%" x2="85%" y2="75%" stroke="rgba(255,255,255,0.05)" strokeWidth="2" strokeDasharray="4 4" style={{ animation: reduced ? 'none' : 'pulseLine2 4s infinite' }} />
+      </svg>
+
+      {/* Data Packets */}
+      {!reduced && (
+        <>
+          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket1 4s infinite' }} />
+          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket2 4s infinite' }} />
+          <div className="absolute w-3 h-3 bg-accent rounded-full shadow-[0_0_15px_rgba(23,107,104,1)] -ml-1.5 -mt-1.5 z-10" style={{ animation: 'movePacket3 4s infinite' }} />
+        </>
+      )}
+
+      {/* Nodes (Pods) */}
+      <div className="absolute left-[15%] top-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3">
+          <Database size={24} />
         </div>
+        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Data Source</span>
       </div>
+
+      <div className="absolute left-[50%] top-[50%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
+        <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-accent mb-3" style={{ animation: reduced ? 'none' : 'nodeProcessor 4s infinite' }}>
+          <Cpu size={32} />
+        </div>
+        <span className="text-[10px] sm:text-[11px] font-bold text-white/70 tracking-widest uppercase whitespace-nowrap">Taskora Engine</span>
+      </div>
+
+      <div className="absolute left-[85%] top-[25%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3" style={{ animation: reduced ? 'none' : 'nodeDest 4s infinite' }}>
+          <LayoutDashboard size={24} />
+        </div>
+        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Dashboard</span>
+      </div>
+
+      <div className="absolute left-[85%] top-[75%] -translate-x-1/2 -translate-y-1/2 flex flex-col items-center z-20">
+        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md flex items-center justify-center text-white/60 mb-3" style={{ animation: reduced ? 'none' : 'nodeDest 4s infinite' }}>
+          <BarChart3 size={24} />
+        </div>
+        <span className="text-[10px] sm:text-[11px] font-bold text-white/50 tracking-widest uppercase whitespace-nowrap">Analytics</span>
+      </div>
+
     </div>
   );
 }
@@ -335,7 +237,7 @@ export function MarketingExperience() {
               </div>
             </div>
             <div data-stage className="relative z-10 w-full">
-              <LivingPreview />
+              <DataPipelinePreview />
             </div>
           </section>
           <section
