@@ -7,7 +7,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "framer-motion";
 import { Brand } from "@/components/shared/Brand";
 import { MarketingSmoothScroll } from "@/components/scroll/MarketingSmoothScroll";
-import { ProjectConstellation } from "./three/ProjectConstellation";
+import { motion, AnimatePresence } from "framer-motion";
 import { brand } from "@data/brand";
 
 const steps = [
@@ -33,146 +33,155 @@ const steps = [
     state: "60% delivered",
   },
 ];
-const tasks = [
-  "Gather launch feedback",
-  "Build project workspace",
-  "Prepare release notes",
-];
-
 function LivingPreview() {
   const [phase, setPhase] = useState(0);
   const reduced = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
 
-
   useEffect(() => {
     if (reduced) return;
-    let timeoutId: number;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && phase === 0) {
-          // Start the choreography once visible
-          setPhase(1);
-        }
+        if (entry.isIntersecting && phase === 0) setPhase(1);
       },
       { threshold: 0.5 },
     );
     if (root.current) observer.observe(root.current);
-
     return () => observer.disconnect();
   }, [reduced, phase]);
 
   useEffect(() => {
     if (reduced || phase === 0 || phase >= 5) return;
-    
     const timings = [0, 1500, 1800, 2000, 1500];
     const timer = window.setTimeout(() => {
       setPhase((p) => Math.min(p + 1, 5));
     }, timings[phase]);
-
     return () => window.clearTimeout(timer);
   }, [phase, reduced]);
 
-  const progress = phase >= 5 ? 60 : phase >= 3 ? 40 : 20;
+  const TaskCard = () => {
+    const isDone = phase >= 4;
+    const isDoing = phase === 3;
+    
+    return (
+      <motion.div
+        layoutId="marketing-task"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ type: "spring", bounce: 0, duration: 0.6 }}
+        className={`relative rounded-xl border p-5 shadow-sm transition-colors duration-500 ${
+          isDone ? "bg-success-soft/30 border-success/30" : "bg-white border-line shadow-md"
+        }`}
+      >
+        <div className="flex justify-between items-start mb-4">
+          <span className={`badge ${isDone ? "badge-success" : isDoing ? "badge-amber" : "badge-TODO"}`}>
+            {isDone ? "Complete" : isDoing ? "In Progress" : "To do"}
+          </span>
+          <AnimatePresence>
+            {phase >= 2 && (
+              <motion.div
+                layoutId="marketing-avatar"
+                initial={{ scale: 0, opacity: 0, rotate: -45 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                className="avatar !h-8 !w-8 !text-[11px] font-bold !bg-accent !text-white ring-4 ring-white shadow-sm"
+              >
+                AK
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <h4 className="text-[15px] font-semibold text-ink leading-snug mb-1">
+          Prepare launch assets
+        </h4>
+        <p className="text-[13px] text-muted leading-relaxed line-clamp-2">
+          Compile all final marketing materials, including screenshots and social copy.
+        </p>
+        <div className="mt-5 pt-4 flex items-center justify-between border-t border-line border-dashed text-[12px] font-medium text-muted">
+          <span>{isDone ? "Delivered" : phase >= 2 ? "Assigned to Alex" : "Unassigned"}</span>
+          {isDone && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", bounce: 0.4 }}
+            >
+              <Check size={16} className="text-success" strokeWidth={3} />
+            </motion.div>
+          )}
+        </div>
+      </motion.div>
+    );
+  };
+
   return (
     <div
       ref={root}
-      className="product-preview overflow-hidden rounded-2xl border border-line bg-white shadow-2xl"
+      className="product-preview overflow-hidden rounded-[2rem] border border-line bg-white shadow-2xl"
     >
-      <div className="flex items-center justify-between bg-dark-product px-5 py-4 text-dark-text border-b border-white/5 shadow-sm">
-        <span className="flex items-center gap-2 text-[13px] font-semibold tracking-wide">
-          <Layers2 size={16} className="text-accent" />
-          Taskora Workspace
-        </span>
+      <div className="px-6 py-5 sm:px-8 sm:py-6 border-b border-line/60 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <span className="hidden sm:flex items-center gap-2 text-[11px] font-medium opacity-60">
-            Design Handoff
-          </span>
-          <span className="flex items-center gap-2 text-[11px] font-medium opacity-90">
-            <span className="h-1.5 w-1.5 rounded-full bg-success shadow-[0_0_8px_rgba(23,107,104,0.8)]" />
-            Active
-          </span>
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent-soft text-accent shadow-sm">
+            <Layers2 size={24} />
+          </div>
+          <div>
+            <h2 className="text-base font-bold tracking-tight text-ink">Website Launch</h2>
+            <p className="mt-0.5 flex items-center gap-2 text-[12px] font-medium text-muted">
+              <Users size={14} className="opacity-70" />
+              <span>3 Members</span>
+              <span className="h-1 w-1 rounded-full bg-line-strong" />
+              <span>1 Active Task</span>
+            </p>
+          </div>
         </div>
-      </div>
-      <div className="grid gap-6 p-5 sm:p-7 xl:grid-cols-[1fr_240px] bg-canvas/30">
-        <div className="min-w-0 flex flex-col">
-          <div className="mb-6 flex items-end justify-between gap-4 border-b border-line pb-5">
-            <div>
-              <p className="eyebrow mb-2">Website launch</p>
-              <h2 className="text-xl font-semibold tracking-tight text-ink">Tasks in motion</h2>
-            </div>
-            <span className="flex -space-x-2">
-              {["AK", "RM", "JL"].map((name, index) => (
-                <span
-                  key={name}
-                  className={`avatar !h-8 !w-8 !border-2 !border-white transition-colors duration-500 ${phase >= 2 && index === 0 ? "!bg-accent-soft !text-accent shadow-sm z-10" : "z-0"}`}
-                >
-                  {name}
-                </span>
-              ))}
+        <div className="w-full sm:w-56">
+          <div className="mb-2 flex justify-between text-[11px] font-bold tracking-wider uppercase text-muted">
+            <span>Progress</span>
+            <span className={`transition-colors duration-500 ${phase >= 4 ? "text-success" : ""}`}>
+              {phase >= 4 ? "100%" : phase >= 3 ? "50%" : "0%"}
             </span>
           </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            {tasks.map((task, index) => {
-              let status = "DONE";
-              let showAssignee = true;
-              
-              if (index === 1) {
-                status = phase >= 4 ? "DONE" : phase >= 3 ? "IN_PROGRESS" : "TODO";
-                showAssignee = phase >= 2;
-              } else if (index === 2) {
-                status = "TODO";
-                showAssignee = false;
-              }
-
-              return (
-                <div
-                  key={task}
-                  className={`task-card transition-all duration-700 shadow-sm flex flex-col ${
-                    index === 1 && phase === 1 ? "ring-2 ring-accent ring-offset-2 ring-offset-canvas scale-[1.02]" : ""
-                  } ${status === "DONE" && index === 1 && phase === 4 ? "completion-pulse bg-success-soft/20 border-success/30" : "bg-white"}`}
-                  style={{ opacity: index === 1 && phase === 0 ? 0 : 1, transform: index === 1 && phase === 0 ? "translateY(10px)" : "translateY(0)" }}
-                >
-                  <span className={`badge badge-${status} w-fit transition-colors duration-500`}>
-                    {status === "DONE"
-                      ? "Done"
-                      : status === "IN_PROGRESS"
-                        ? "In progress"
-                        : "To do"}
-                  </span>
-                  <p className="mt-4 mb-4 flex-1 text-[13px] leading-relaxed font-semibold text-ink">
-                    {task}
-                  </p>
-                  <div className="mt-auto flex items-center justify-between border-t border-line pt-3 text-[11px] font-medium text-muted">
-                    <span>{status === "DONE" ? "Complete" : showAssignee ? "Assigned" : "Unassigned"}</span>
-                    {status === "DONE" ? (
-                      <Check size={16} className="text-success" />
-                    ) : showAssignee ? (
-                      <span className="avatar !h-6 !w-6 !text-[9px] !bg-accent-soft !text-accent">AK</span>
-                    ) : (
-                      <span className="h-6 w-6 rounded-full border border-dashed border-line flex items-center justify-center text-line-strong">+</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
+          <div className="h-2 w-full overflow-hidden rounded-full bg-surface">
+            <motion.div
+              className="h-full bg-success"
+              initial={{ width: "0%" }}
+              animate={{ width: phase >= 4 ? "100%" : phase >= 3 ? "50%" : "0%" }}
+              transition={{ type: "spring", bounce: 0, duration: 1 }}
+            />
           </div>
         </div>
-        <div className="space-y-4">
-          <ProjectConstellation phase={phase} />
-          <div className="rounded-xl bg-surface-muted p-4">
-            <div className="mb-2 flex justify-between text-xs">
-              <span className="text-muted">Project progress</span>
-              <span className="font-semibold">{progress}%</span>
-            </div>
-            <div className="progress-track !h-2">
-              <div
-                className="progress-fill"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
-          </div>
+      </div>
+      <div className="grid gap-6 p-6 sm:p-8 sm:grid-cols-3 bg-canvas/40 min-h-[380px]">
+        {/* To Do Column */}
+        <div className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            To Do 
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
+              {phase < 3 ? "1" : "0"}
+            </span>
+          </h3>
+          {phase > 0 && phase < 3 && <TaskCard />}
+        </div>
+        
+        {/* In Progress Column */}
+        <div className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            In Progress 
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
+              {phase === 3 ? "1" : "0"}
+            </span>
+          </h3>
+          {phase === 3 && <TaskCard />}
+        </div>
+
+        {/* Done Column */}
+        <div className="flex flex-col gap-4">
+          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
+            Done 
+            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-60">
+              {phase >= 4 ? "1" : "0"}
+            </span>
+          </h3>
+          {phase >= 4 && <TaskCard />}
         </div>
       </div>
     </div>

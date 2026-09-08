@@ -20,7 +20,6 @@ import { Loading, LoadError, EmptyState } from "@/components/shared/Feedback";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { ProjectForm } from "@/components/projects/ProjectForm";
 import { TaskList } from "@/components/tasks/TaskList";
-import { TaskFlow } from "@/components/visualization/TaskFlow";
 import { AnimatedNumber } from "@/components/shared/AnimatedNumber";
 
 export default function DashboardPage() {
@@ -109,11 +108,46 @@ export default function DashboardPage() {
         </div>
       </div>
       <div className="mb-12 grid gap-5 lg:grid-cols-[1.8fr_1fr] xl:grid-cols-[65fr_35fr]">
-        <TaskFlow 
-          todo={total - inProgress - completed} 
-          inProgress={inProgress} 
-          done={completed} 
-        />
+        <div className="card p-6 sm:p-8 bg-white shadow-sm flex flex-col justify-center">
+          <div className="flex items-end justify-between mb-8 pb-5 border-b border-line">
+            <div>
+              <p className="eyebrow mb-2">Delivery Flow</p>
+              <h2 className="text-xl font-semibold tracking-tight text-ink">Task progression</h2>
+            </div>
+            <div className="text-right">
+              <p className="text-3xl font-bold tracking-tight text-ink">
+                 <AnimatedNumber value={total ? Math.round((completed / total) * 100) : 0} />%
+              </p>
+              <p className="mt-1 text-[11px] font-bold tracking-widest text-muted uppercase">Completed</p>
+            </div>
+          </div>
+          
+          <div className="flex flex-col gap-6">
+            <div className="flex items-center gap-4">
+              <div className="w-24 text-[11px] font-bold tracking-widest text-muted uppercase">To Do</div>
+              <div className="h-3 w-full bg-surface rounded-full overflow-hidden">
+                <div className="h-full bg-line-strong transition-all duration-1000 ease-out" style={{ width: `${total ? ((total - inProgress - completed) / total) * 100 : 0}%` }} />
+              </div>
+              <div className="w-8 text-right text-sm font-semibold text-ink">{total - inProgress - completed}</div>
+            </div>
+            
+            <div className="flex items-center gap-4">
+              <div className="w-24 text-[11px] font-bold tracking-widest text-amber uppercase">In Progress</div>
+              <div className="h-3 w-full bg-amber-soft/50 rounded-full overflow-hidden">
+                <div className="h-full bg-amber transition-all duration-1000 ease-out" style={{ width: `${total ? (inProgress / total) * 100 : 0}%` }} />
+              </div>
+              <div className="w-8 text-right text-sm font-semibold text-ink">{inProgress}</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <div className="w-24 text-[11px] font-bold tracking-widest text-success uppercase">Done</div>
+              <div className="h-3 w-full bg-success-soft/50 rounded-full overflow-hidden relative">
+                <div className="absolute inset-y-0 left-0 bg-success transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(23,107,104,0.5)]" style={{ width: `${total ? (completed / total) * 100 : 0}%` }} />
+              </div>
+              <div className="w-8 text-right text-sm font-semibold text-ink">{completed}</div>
+            </div>
+          </div>
+        </div>
         <div className="card flex flex-col justify-center bg-dark-product p-6 text-dark-text border-transparent shadow-md sm:p-8">
           <h2 className="eyebrow mb-6 !text-white/50">Workspace Metrics</h2>
           <div className="space-y-6">
