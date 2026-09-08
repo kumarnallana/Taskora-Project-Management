@@ -5,7 +5,7 @@ import { useReducedMotion } from "framer-motion";
 const Scene = dynamic(() => import("./ProjectConstellationCanvas"), {
   ssr: false,
 });
-export function ProjectConstellation() {
+export function ProjectConstellation({ phase = 0 }: { phase?: number }) {
   const root = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [eligible, setEligible] = useState(false);
@@ -38,7 +38,7 @@ export function ProjectConstellation() {
       className="constellation-fallback relative h-52 overflow-hidden rounded-xl"
       aria-hidden="true"
     >
-      {eligible && visible && <Scene />}
+      {eligible && visible && <Scene phase={phase} />}
       <div className="pointer-events-none absolute inset-x-4 bottom-4 flex justify-between text-[10px] uppercase tracking-[.18em] text-white/60">
         <span>People</span>
         <span>Project</span>

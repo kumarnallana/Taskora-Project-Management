@@ -43,13 +43,7 @@ function LivingPreview() {
   const [phase, setPhase] = useState(0);
   const reduced = useReducedMotion();
   const root = useRef<HTMLDivElement>(null);
-  
-  // Phase 0: INITIAL (20%)
-  // Phase 1: PLAN (Task appears)
-  // Phase 2: ASSIGN (Member connects)
-  // Phase 3: MOVE (Status changes to In Progress)
-  // Phase 4: COMPLETE (Task resolves)
-  // Phase 5: FINAL (60%)
+
 
   useEffect(() => {
     if (reduced) return;
@@ -121,12 +115,10 @@ function LivingPreview() {
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
             {tasks.map((task, index) => {
-              // Map phase to specific task statuses
               let status = "DONE";
               let showAssignee = true;
               
               if (index === 1) {
-                // The main animated task
                 status = phase >= 4 ? "DONE" : phase >= 3 ? "IN_PROGRESS" : "TODO";
                 showAssignee = phase >= 2;
               } else if (index === 2) {
@@ -168,7 +160,7 @@ function LivingPreview() {
           </div>
         </div>
         <div className="space-y-4">
-          <ProjectConstellation />
+          <ProjectConstellation phase={phase} />
           <div className="rounded-xl bg-surface-muted p-4">
             <div className="mb-2 flex justify-between text-xs">
               <span className="text-muted">Project progress</span>
@@ -180,9 +172,6 @@ function LivingPreview() {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <p className="mt-3 flex items-center gap-2 text-[11px] text-muted">
-              <Users size={13} />3 people moving one plan forward
-            </p>
           </div>
         </div>
       </div>
@@ -270,7 +259,7 @@ export function MarketingExperience() {
           </div>
         </header>
         <main id="main">
-          <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 md:px-10 lg:grid-cols-[.8fr_1.2fr] lg:py-24">
+          <section className="mx-auto grid max-w-7xl items-center gap-12 px-5 py-16 md:px-10 xl:grid-cols-[.8fr_1.2fr] lg:py-24">
             <div>
               <p data-hero className="eyebrow mb-5">
                 Projects. People. Progress.
@@ -293,25 +282,8 @@ export function MarketingExperience() {
                   See how it works
                 </a>
               </div>
-              <div
-                data-hero
-                className="mt-10 grid max-w-md grid-cols-3 gap-6 text-xs border-t border-line pt-6"
-              >
-                <div>
-                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">1 place</strong>
-                  <span className="text-muted font-medium">for every plan</span>
-                </div>
-                <div>
-                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">3 states</strong>
-                  <span className="text-muted font-medium">from idea to done</span>
-                </div>
-                <div>
-                  <strong className="block text-sm font-semibold tracking-tight text-ink mb-0.5">0 noise</strong>
-                  <span className="text-muted font-medium">around the work</span>
-                </div>
-              </div>
             </div>
-            <div data-stage className="relative z-10 lg:-ml-6 xl:-ml-12">
+            <div data-stage className="relative z-10 w-full">
               <LivingPreview />
             </div>
           </section>
