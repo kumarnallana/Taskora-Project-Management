@@ -1,7 +1,7 @@
 "use client";
-import { Canvas, useFrame } from "@react-three/fiber";
-import { Line, Sphere, Torus, MeshDistortMaterial } from "@react-three/drei";
-import { useRef } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Line, Sphere, Torus } from "@react-three/drei";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 
 // Real-world concepts
@@ -18,17 +18,6 @@ const tasks = [
 ];
 
 function Connection({ start, end, active }: { start: THREE.Vector3; end: THREE.Vector3; active?: boolean }) {
-  const pulseRef = useRef<THREE.Mesh>(null);
-  const timeRef = useRef(0);
-
-  useFrame((state, delta) => {
-    if (active && pulseRef.current) {
-      timeRef.current += delta;
-      const t = (timeRef.current * 0.6) % 1;
-      pulseRef.current.position.lerpVectors(start, end, t);
-    }
-  });
-
   return (
     <group>
       <Line
@@ -39,7 +28,7 @@ function Connection({ start, end, active }: { start: THREE.Vector3; end: THREE.V
         lineWidth={active ? 2 : 1}
       />
       {active && (
-        <Sphere ref={pulseRef} args={[0.04, 12, 12]}>
+        <Sphere args={[0.04, 12, 12]} position={start.clone().lerp(end, 0.5)}>
           <meshBasicMaterial color="#A56A18" />
         </Sphere>
       )}
@@ -47,30 +36,20 @@ function Connection({ start, end, active }: { start: THREE.Vector3; end: THREE.V
   );
 }
 
-function Scene() {
-  const group = useRef<THREE.Group>(null);
-  const coreRef = useRef<THREE.Mesh>(null);
-  const timeRef = useRef(0);
-
-  useFrame(({ pointer }, delta) => {
-    if (group.current) {
-      group.current.rotation.y += (pointer.x * 0.15 - group.current.rotation.y) * delta * 2;
-      group.current.rotation.x += (-pointer.y * 0.1 - group.current.rotation.x) * delta * 2;
-    }
-    if (coreRef.current) {
-      timeRef.current += delta;
-      coreRef.current.rotation.y = timeRef.current * 0.2;
-    }
-  });
-
+function Scene({ phase }: { phase: number }) {
   const origin = new THREE.Vector3(0, 0, 0);
 
+  // Phase mapping
+  const personConnected = phase >= 2;
+  const taskConnected = phase >= 3;
+  const progressLength = phase >= 4 ? Math.PI * 1.2 : 0.1;
+
   return (
-    <group ref={group}>
+    <group>
       {/* People Connections */}
       {people.map((n, i) => (
         <group key={`p-${i}`}>
-          <Connection start={n.p} end={origin} active={i === 1} />
+          <Connection start={n.p} end={origin} active={i === 1 && personConnected} />
           <Sphere args={[n.s, 24, 24]} position={n.p}>
             <meshStandardMaterial color={n.c} roughness={0.4} />
           </Sphere>
@@ -80,7 +59,7 @@ function Scene() {
       {/* Task Connections */}
       {tasks.map((n, i) => (
         <group key={`t-${i}`}>
-          <Connection start={origin} end={n.p} active={i === 1} />
+          <Connection start={origin} end={n.p} active={i === 1 && taskConnected} />
           <Sphere args={[n.s, 24, 24]} position={n.p}>
             <meshStandardMaterial color={n.c} roughness={0.4} />
           </Sphere>
@@ -88,12 +67,12 @@ function Scene() {
       ))}
 
       {/* Central Project Core */}
-      <Sphere ref={coreRef} args={[0.45, 32, 32]}>
-        <MeshDistortMaterial color="#176B68" roughness={0.2} distort={0.2} speed={2} />
+      <Sphere args={[0.45, 32, 32]}>
+        <meshStandardMaterial color="#176B68" roughness={0.2} />
       </Sphere>
 
       {/* Progress Arc */}
-      <Torus args={[0.7, 0.02, 16, 100, Math.PI * 1.2]} rotation={[Math.PI / 2, 0, -Math.PI / 2]}>
+      <Torus args={[0.7, 0.02, 16, 100, progressLength]} rotation={[Math.PI / 2, 0, -Math.PI / 2]}>
         <meshStandardMaterial color="#A56A18" emissive="#A56A18" emissiveIntensity={0.5} roughness={0.2} />
       </Torus>
       
@@ -105,17 +84,17 @@ function Scene() {
   );
 }
 
-export default function ProjectConstellationCanvas() {
+export default function ProjectConstellationCanvas({ phase = 0 }: { phase?: number }) {
   return (
     <Canvas
-      dpr={[1, 2]}
+      frameloop="demand"
+      dpr={[1, 1.25]}
       camera={{ position: [0, 0, 4.5], fov: 45 }}
       gl={{ antialias: true, alpha: true }}
     >
       <ambientLight intensity={1.5} />
       <directionalLight position={[3, 5, 5]} intensity={2.5} />
-      <directionalLight position={[-3, -5, -5]} intensity={0.5} />
-      <Scene />
+      <Scene phase={phase} />
     </Canvas>
   );
 }

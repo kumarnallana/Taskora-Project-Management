@@ -81,6 +81,7 @@ export function TaskFlow({ todo, inProgress, done }: Props) {
 
           {/* Animated flow indicator 1 */}
           <motion.circle
+            key={`flow-1-${inProgress}`}
             cx="0"
             cy="120"
             r="5"
@@ -91,8 +92,7 @@ export function TaskFlow({ todo, inProgress, done }: Props) {
               opacity: [0, 1, 1, 0]
             }}
             transition={{
-              duration: 2.5,
-              repeat: Infinity,
+              duration: 1.5,
               ease: "linear",
               times: [0, 0.2, 0.8, 1]
             }}
@@ -100,6 +100,7 @@ export function TaskFlow({ todo, inProgress, done }: Props) {
 
           {/* Animated flow indicator 2 */}
           <motion.circle
+            key={`flow-2-${done}`}
             cx="0"
             cy="120"
             r="5"
@@ -110,10 +111,9 @@ export function TaskFlow({ todo, inProgress, done }: Props) {
               opacity: [0, 1, 1, 0]
             }}
             transition={{
-              duration: 2.5,
-              repeat: Infinity,
+              duration: 1.5,
               ease: "linear",
-              delay: 1.25,
+              delay: 0.2,
               times: [0, 0.2, 0.8, 1]
             }}
           />
