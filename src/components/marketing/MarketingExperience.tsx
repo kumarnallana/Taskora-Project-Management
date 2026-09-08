@@ -1,13 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { ArrowRight, ArrowUpRight, Check, Layers2, Users } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Check, Layers2 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useReducedMotion } from "framer-motion";
 import { Brand } from "@/components/shared/Brand";
 import { MarketingSmoothScroll } from "@/components/scroll/MarketingSmoothScroll";
-import { motion, AnimatePresence } from "framer-motion";
 import { brand } from "@data/brand";
 
 const steps = [
@@ -33,112 +32,33 @@ const steps = [
     state: "60% delivered",
   },
 ];
-function HeroTaskCard({ step }: { step: number }) {
-  const isDone = step >= 4;
-  const isInProgress = step === 3;
-  const isAssigned = step >= 2;
-
-  return (
-    <motion.div
-      layoutId="preview-hero-task"
-      transition={{
-        type: "spring",
-        stiffness: 350,
-        damping: 32,
-        mass: 0.8,
-      }}
-      className={`relative rounded-xl border p-4 shadow-sm transition-colors duration-300 ${
-        isDone
-          ? "border-success/40 bg-success-soft/30"
-          : isInProgress
-          ? "border-amber/40 bg-white ring-1 ring-amber/20"
-          : "border-line bg-white"
-      }`}
-    >
-      <div className="flex items-center justify-between gap-2 mb-2">
-        <span
-          className={`badge ${
-            isDone
-              ? "badge-DONE"
-              : isInProgress
-              ? "badge-IN_PROGRESS"
-              : "badge-TODO"
-          }`}
-        >
-          {isDone ? "Completed" : isInProgress ? "In Progress" : "To Do"}
-        </span>
-        <span className="text-[11px] font-medium text-muted">Core</span>
-      </div>
-
-      <h4 className="text-[13px] sm:text-sm font-semibold text-ink leading-snug">
-        Build project workspace
-      </h4>
-      <p className="mt-1 text-[11px] sm:text-xs text-muted leading-relaxed line-clamp-2">
-        Configure boards, permission tiers, and team milestone tracking.
-      </p>
-
-      <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-line/60 text-xs">
-        <div className="flex items-center gap-1.5 min-h-[24px]">
-          {isAssigned ? (
-            <motion.div
-              key="assigned"
-              initial={{ scale: 0.6, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: "spring", stiffness: 450, damping: 25 }}
-              className="flex items-center gap-1.5"
-            >
-              <div className="h-5 w-5 rounded-full bg-accent text-white flex items-center justify-center text-[9px] font-bold shadow-xs">
-                AR
-              </div>
-              <span className="text-[11px] font-medium text-ink">Alex Rivera</span>
-            </motion.div>
-          ) : (
-            <span className="text-[11px] font-normal text-muted/70 flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-line-strong" />
-              Unassigned
-            </span>
-          )}
-        </div>
-
-        {isDone ? (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 400, damping: 20 }}
-            className="flex items-center gap-1 text-[11px] font-semibold text-success"
-          >
-            <Check size={13} strokeWidth={3} />
-            Delivered
-          </motion.div>
-        ) : (
-          <span className="text-[11px] font-medium text-muted/60">P1</span>
-        )}
-      </div>
-    </motion.div>
-  );
-}
-
-function StaticCard({
+function WorkspaceTaskCard({
   status,
   title,
   desc,
   tag,
   assignee,
+  priority,
   isCompleted,
+  isFocal,
 }: {
   status: "TODO" | "IN_PROGRESS" | "DONE";
   title: string;
   desc: string;
   tag: string;
   assignee?: { initials: string; name: string };
+  priority?: string;
   isCompleted?: boolean;
+  isFocal?: boolean;
 }) {
   return (
     <div
-      className={`rounded-xl border p-4 shadow-xs transition-opacity ${
-        isCompleted
-          ? "border-line/60 bg-surface/80 opacity-90"
-          : "border-line bg-white"
+      className={`group relative rounded-xl border p-4 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-default ${
+        isFocal
+          ? "border-amber/40 bg-white ring-1 ring-amber/20 hover:border-amber/60 hover:ring-amber/30"
+          : isCompleted
+          ? "border-line/70 bg-surface/80 opacity-95 hover:border-line hover:bg-white"
+          : "border-line bg-white hover:border-line-strong"
       }`}
     >
       <div className="flex items-center justify-between gap-2 mb-2">
@@ -159,19 +79,31 @@ function StaticCard({
         </span>
         <span className="text-[11px] font-medium text-muted/70">{tag}</span>
       </div>
+
       <h4 className="text-[13px] sm:text-sm font-semibold text-ink leading-snug">
         {title}
       </h4>
       <p className="mt-1 text-[11px] sm:text-xs text-muted leading-relaxed line-clamp-2">
         {desc}
       </p>
+
       <div className="mt-3 pt-2.5 flex items-center justify-between border-t border-line/60 text-xs">
         {assignee ? (
           <div className="flex items-center gap-1.5 min-h-[24px]">
-            <div className="h-5 w-5 rounded-full bg-surface-muted text-muted font-bold text-[9px] flex items-center justify-center border border-line">
+            <div
+              className={`h-5 w-5 rounded-full font-bold text-[9px] flex items-center justify-center shadow-xs ${
+                isFocal
+                  ? "bg-accent text-white"
+                  : "bg-surface-muted text-muted border border-line"
+              }`}
+            >
               {assignee.initials}
             </div>
-            <span className="text-[11px] font-medium text-muted">
+            <span
+              className={`text-[11px] font-medium ${
+                isFocal ? "text-ink font-semibold" : "text-muted"
+              }`}
+            >
               {assignee.name}
             </span>
           </div>
@@ -181,54 +113,22 @@ function StaticCard({
             Unassigned
           </span>
         )}
-        {isCompleted && (
-          <span className="flex items-center gap-1 text-[11px] font-medium text-success">
+
+        {isCompleted ? (
+          <span className="flex items-center gap-1 text-[11px] font-semibold text-success">
             <Check size={13} strokeWidth={2.5} />
             Delivered
           </span>
-        )}
+        ) : priority ? (
+          <span className="text-[11px] font-semibold text-amber">{priority}</span>
+        ) : null}
       </div>
     </div>
   );
 }
 
 function ProductWorkspacePreview() {
-  const reduced = useReducedMotion();
-  const [step, setStep] = useState(reduced ? 5 : 1);
-  const [mobileColumn, setMobileColumn] = useState<"TODO" | "IN_PROGRESS" | "DONE">("TODO");
-
-  useEffect(() => {
-    if (reduced) {
-      setStep(5);
-      setMobileColumn("DONE");
-      return;
-    }
-
-    const t1 = setTimeout(() => {
-      setStep(2);
-    }, 1400);
-
-    const t2 = setTimeout(() => {
-      setStep(3);
-      setMobileColumn("IN_PROGRESS");
-    }, 3000);
-
-    const t3 = setTimeout(() => {
-      setStep(4);
-      setMobileColumn("DONE");
-    }, 4800);
-
-    const t4 = setTimeout(() => {
-      setStep(5);
-    }, 6000);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-    };
-  }, [reduced]);
+  const [mobileColumn, setMobileColumn] = useState<"TODO" | "IN_PROGRESS" | "DONE">("IN_PROGRESS");
 
   return (
     <div className="product-preview overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-2xl">
@@ -289,49 +189,31 @@ function ProductWorkspacePreview() {
             </div>
           </div>
 
-          {/* Progress Tracking Widget (40% -> 60%) */}
+          {/* Progress Tracking Widget (Stable 60%) */}
           <div className="w-full sm:w-52 shrink-0">
             <div className="mb-1.5 flex items-center justify-between text-[11px] font-bold tracking-wider uppercase">
               <span className="text-muted">Progress</span>
-              <span className="font-bold text-accent transition-colors duration-500">
-                {step >= 5 ? "60%" : "40%"}
-              </span>
+              <span className="font-bold text-accent">60%</span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted border border-line/50">
-              <motion.div
-                className="h-full bg-accent rounded-full"
-                initial={false}
-                animate={{ width: step >= 5 ? "60%" : "40%" }}
-                transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              />
+              <div className="h-full bg-accent rounded-full" style={{ width: "60%" }} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Column Tabs (< 768px) */}
+      {/* Mobile Column Tabs (< 640px) */}
       <div className="sm:hidden flex border-b border-line bg-surface-muted/30 p-1.5 gap-1 text-xs">
         {(["TODO", "IN_PROGRESS", "DONE"] as const).map((col) => {
           const label = col === "TODO" ? "To Do" : col === "IN_PROGRESS" ? "In Progress" : "Done";
-          const count =
-            col === "TODO"
-              ? step <= 2
-                ? 2
-                : 1
-              : col === "IN_PROGRESS"
-              ? step === 3
-                ? 2
-                : 1
-              : step >= 4
-              ? 3
-              : 2;
+          const count = col === "TODO" ? 1 : 2;
           const isActive = mobileColumn === col;
           return (
             <button
               key={col}
               type="button"
               onClick={() => setMobileColumn(col)}
-              className={`flex-1 py-1.5 px-2 text-center font-semibold rounded-lg text-[11px] transition-colors flex items-center justify-center gap-1.5 ${
+              className={`flex-1 py-1.5 px-2 text-center font-semibold rounded-lg text-[11px] transition-colors duration-150 flex items-center justify-center gap-1.5 ${
                 isActive
                   ? "bg-white text-ink shadow-xs border border-line"
                   : "text-muted hover:text-ink"
@@ -344,23 +226,28 @@ function ProductWorkspacePreview() {
         })}
       </div>
 
-      {/* Mobile Single Column View */}
+      {/* Mobile Single Column Content */}
       <div className="sm:hidden p-4 bg-canvas/40 min-h-[290px] flex flex-col gap-3">
         {mobileColumn === "TODO" && (
-          <>
-            {step <= 2 && <HeroTaskCard step={step} />}
-            <StaticCard
-              status="TODO"
-              title="Release notes v1.2"
-              desc="Compile change summary for the upcoming launch."
-              tag="Docs"
-            />
-          </>
+          <WorkspaceTaskCard
+            status="TODO"
+            title="Release notes v1.2"
+            desc="Compile change summary for the upcoming launch."
+            tag="Docs"
+          />
         )}
         {mobileColumn === "IN_PROGRESS" && (
           <>
-            {step === 3 && <HeroTaskCard step={step} />}
-            <StaticCard
+            <WorkspaceTaskCard
+              status="IN_PROGRESS"
+              title="Build project workspace"
+              desc="Configure boards, permission tiers, and team milestone tracking."
+              tag="Core"
+              assignee={{ initials: "AR", name: "Alex Rivera" }}
+              priority="P1"
+              isFocal
+            />
+            <WorkspaceTaskCard
               status="IN_PROGRESS"
               title="Design hero system"
               desc="Finalize visual tokens and responsive layout."
@@ -371,8 +258,7 @@ function ProductWorkspacePreview() {
         )}
         {mobileColumn === "DONE" && (
           <>
-            {step >= 4 && <HeroTaskCard step={step} />}
-            <StaticCard
+            <WorkspaceTaskCard
               status="DONE"
               title="User flow audit"
               desc="All 5 core activation paths verified."
@@ -380,7 +266,7 @@ function ProductWorkspacePreview() {
               assignee={{ initials: "JL", name: "Jess" }}
               isCompleted
             />
-            <StaticCard
+            <WorkspaceTaskCard
               status="DONE"
               title="Define brand tokens"
               desc="Approved color system and spacing scale."
@@ -399,11 +285,10 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>To Do</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              {step <= 2 ? 2 : 1}
+              1
             </span>
           </h3>
-          {step <= 2 && <HeroTaskCard step={step} />}
-          <StaticCard
+          <WorkspaceTaskCard
             status="TODO"
             title="Release notes v1.2"
             desc="Compile change summary for the upcoming launch."
@@ -416,11 +301,19 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>In Progress</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              {step === 3 ? 2 : 1}
+              2
             </span>
           </h3>
-          {step === 3 && <HeroTaskCard step={step} />}
-          <StaticCard
+          <WorkspaceTaskCard
+            status="IN_PROGRESS"
+            title="Build project workspace"
+            desc="Configure boards, permission tiers, and team milestone tracking."
+            tag="Core"
+            assignee={{ initials: "AR", name: "Alex Rivera" }}
+            priority="P1"
+            isFocal
+          />
+          <WorkspaceTaskCard
             status="IN_PROGRESS"
             title="Design hero system"
             desc="Finalize visual tokens and responsive layout."
@@ -434,11 +327,10 @@ function ProductWorkspacePreview() {
           <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
             <span>Done</span>
             <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              {step >= 4 ? 3 : 2}
+              2
             </span>
           </h3>
-          {step >= 4 && <HeroTaskCard step={step} />}
-          <StaticCard
+          <WorkspaceTaskCard
             status="DONE"
             title="User flow audit"
             desc="All 5 core activation paths verified."
@@ -446,7 +338,7 @@ function ProductWorkspacePreview() {
             assignee={{ initials: "JL", name: "Jess" }}
             isCompleted
           />
-          <StaticCard
+          <WorkspaceTaskCard
             status="DONE"
             title="Define brand tokens"
             desc="Approved color system and spacing scale."
@@ -474,20 +366,6 @@ export function MarketingExperience() {
     if (!root.current || reduced) return;
     gsap.registerPlugin(ScrollTrigger);
     const context = gsap.context(() => {
-      gsap
-        .timeline()
-        .from("[data-hero]", {
-          opacity: 0,
-          y: 22,
-          duration: 0.65,
-          stagger: 0.1,
-          ease: "power3.out",
-        })
-        .from(
-          "[data-stage]",
-          { opacity: 0, y: 28, duration: 0.65, ease: "power3.out" },
-          "-=.25",
-        );
       gsap.from("[data-story]", {
         scrollTrigger: { trigger: "[data-story-grid]", start: "top 82%" },
         opacity: 0,
