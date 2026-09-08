@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, ArrowUpRight, Check, Layers2 } from "lucide-react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useReducedMotion } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Brand } from "@/components/shared/Brand";
 import { MarketingSmoothScroll } from "@/components/scroll/MarketingSmoothScroll";
 import { brand } from "@data/brand";
@@ -127,11 +127,46 @@ function WorkspaceTaskCard({
   );
 }
 
+type TaskStatus = "TODO" | "IN_PROGRESS" | "DONE";
+
+type Task = {
+  id: string;
+  status: TaskStatus;
+  title: string;
+  desc: string;
+  tag: string;
+  assignee?: { initials: string; name: string };
+  priority?: string;
+  isCompleted?: boolean;
+  isFocal?: boolean;
+};
+
+const TASKS: Task[] = [
+  { id: "t1", status: "TODO", title: "Release notes v1.2", desc: "Compile change summary for the upcoming launch.", tag: "Docs" },
+  { id: "t2", status: "TODO", title: "Update API schema", desc: "Add new endpoints for the reporting dashboard integration.", tag: "Backend", assignee: { initials: "JS", name: "John S." }, priority: "P2" },
+  { id: "t3", status: "TODO", title: "Review accessibility", desc: "Ensure color contrast meets WCAG AA standards across the app.", tag: "Design" },
+  { id: "t4", status: "IN_PROGRESS", title: "Build project workspace", desc: "Configure boards, permission tiers, and team milestone tracking.", tag: "Core", assignee: { initials: "AR", name: "Alex Rivera" }, priority: "P1", isFocal: true },
+  { id: "t5", status: "IN_PROGRESS", title: "Design hero system", desc: "Finalize visual tokens and responsive layout for the landing page.", tag: "Design", assignee: { initials: "SK", name: "Sasi K." } },
+  { id: "t6", status: "IN_PROGRESS", title: "Setup staging environment", desc: "Provision database and cache clusters for beta testing.", tag: "DevOps", assignee: { initials: "TC", name: "Tom C." } },
+  { id: "t7", status: "DONE", title: "User flow audit", desc: "All 5 core activation paths verified and documented.", tag: "QA", assignee: { initials: "JL", name: "Jess L." }, isCompleted: true },
+  { id: "t8", status: "DONE", title: "Define brand tokens", desc: "Approved color system, typography, and spacing scale.", tag: "Design", assignee: { initials: "AR", name: "Alex R." }, isCompleted: true },
+  { id: "t9", status: "DONE", title: "Initialize monorepo", desc: "Set up Next.js frontend and Express backend workspaces.", tag: "Core", assignee: { initials: "JS", name: "John S." }, isCompleted: true }
+];
+
+const TABS: { id: TaskStatus; label: string; count: number }[] = [
+  { id: "TODO", label: "To Do", count: 3 },
+  { id: "IN_PROGRESS", label: "In Progress", count: 3 },
+  { id: "DONE", label: "Done", count: 3 },
+];
+
 function ProductWorkspacePreview() {
-  const [mobileColumn, setMobileColumn] = useState<"TODO" | "IN_PROGRESS" | "DONE">("IN_PROGRESS");
+  const [activeTab, setActiveTab] = useState<TaskStatus>("IN_PROGRESS");
+  const reduced = useReducedMotion();
+
+  const filteredTasks = TASKS.filter(t => t.status === activeTab);
 
   return (
-    <div className="product-preview overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-2xl">
+    <div className="product-preview overflow-hidden rounded-[1.75rem] border border-line bg-white shadow-2xl flex flex-col">
       {/* Window Chrome Header */}
       <div className="flex items-center justify-between border-b border-line bg-surface-muted/50 px-4 py-2.5 text-xs">
         <div className="flex items-center gap-2">
@@ -163,7 +198,7 @@ function ProductWorkspacePreview() {
                 <span className="badge badge-TODO !text-[10px] !py-0.5 !px-2">Sprint</span>
               </div>
               <div className="mt-0.5 flex flex-wrap items-center gap-2.5 text-xs text-muted">
-                <span>3 members · 5 tasks</span>
+                <span>3 members · 9 tasks</span>
                 <span className="h-1 w-1 rounded-full bg-line-strong" />
                 <div className="flex items-center -space-x-1.5">
                   <div
@@ -189,224 +224,94 @@ function ProductWorkspacePreview() {
             </div>
           </div>
 
-          {/* Progress Tracking Widget (Stable 60%) */}
+          {/* Dynamic Progress Tracking Widget */}
           <div className="w-full sm:w-52 shrink-0">
-            <div className="mb-1.5 flex items-center justify-between text-[11px] font-bold tracking-wider uppercase">
-              <span className="text-muted">Progress</span>
-              <span className="font-bold text-accent">60%</span>
+            <div className="mb-1.5 flex items-center justify-between text-[11px] font-bold tracking-wider uppercase transition-colors">
+              <motion.span 
+                key={`label-${activeTab}`}
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="text-muted"
+              >
+                {activeTab === "TODO" ? "To Do" : activeTab === "DONE" ? "Done" : "Progress"}
+              </motion.span>
+              <motion.span 
+                key={`value-${activeTab}`}
+                initial={{ opacity: 0, y: 2 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="font-bold text-accent"
+              >
+                {activeTab === "TODO" ? "33%" : activeTab === "DONE" ? "100%" : "60%"}
+              </motion.span>
             </div>
             <div className="h-2 w-full overflow-hidden rounded-full bg-surface-muted border border-line/50">
-              <div className="h-full bg-accent rounded-full" style={{ width: "60%" }} />
+              <motion.div 
+                className="h-full bg-accent rounded-full" 
+                initial={false}
+                animate={{ width: activeTab === "TODO" ? "33%" : activeTab === "DONE" ? "100%" : "60%" }}
+                transition={{ type: "spring", bounce: 0, duration: 0.6 }}
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile Column Tabs (< 640px) */}
-      <div className="sm:hidden flex border-b border-line bg-surface-muted/30 p-1.5 gap-1 text-xs">
-        {(["TODO", "IN_PROGRESS", "DONE"] as const).map((col) => {
-          const label = col === "TODO" ? "To Do" : col === "IN_PROGRESS" ? "In Progress" : "Done";
-          const count = 3;
-          const isActive = mobileColumn === col;
-          return (
-            <button
-              key={col}
-              type="button"
-              onClick={() => setMobileColumn(col)}
-              className={`flex-1 py-1.5 px-2 text-center font-semibold rounded-lg text-[11px] transition-colors duration-150 flex items-center justify-center gap-1.5 ${
-                isActive
-                  ? "bg-white text-ink shadow-xs border border-line"
-                  : "text-muted hover:text-ink"
-              }`}
-            >
-              <span>{label}</span>
-              <span className="text-[10px] opacity-70">({count})</span>
-            </button>
-          );
-        })}
+      {/* Segmented Control Filter Tabs */}
+      <div className="border-b border-line bg-surface-muted/40 p-2 sm:p-3 overflow-x-auto no-scrollbar">
+        <div className="flex gap-1.5 p-1 bg-canvas/60 rounded-xl border border-line/60 min-w-max mx-auto sm:mx-0">
+          {TABS.map((tab) => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative py-2 px-4 sm:px-6 text-[11px] sm:text-xs font-bold rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 outline-none focus-visible:ring-2 ring-accent/50 ${
+                  isActive ? "text-ink shadow-sm" : "text-muted hover:text-ink hover:bg-white/40"
+                }`}
+              >
+                {isActive && !reduced && (
+                  <motion.div
+                    layoutId="activeTabIndicator"
+                    className="absolute inset-0 bg-white rounded-lg border border-line/80"
+                    transition={{ type: "spring", bounce: 0.15, duration: 0.5 }}
+                  />
+                )}
+                {isActive && reduced && (
+                  <div className="absolute inset-0 bg-white rounded-lg border border-line/80" />
+                )}
+                <span className="relative z-10">{tab.label}</span>
+                <span className={`relative z-10 text-[9px] sm:text-[10px] px-1.5 py-0.5 rounded-full border ${
+                  isActive ? 'bg-surface text-ink border-line/60' : 'bg-surface-muted text-muted border-transparent'
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Mobile Single Column Content */}
-      <div className="sm:hidden p-4 bg-canvas/40 min-h-[290px] flex flex-col gap-3">
-        {mobileColumn === "TODO" && (
-          <>
-            <WorkspaceTaskCard
-              status="TODO"
-              title="Release notes v1.2"
-              desc="Compile change summary for the upcoming launch."
-              tag="Docs"
-            />
-            <WorkspaceTaskCard
-              status="TODO"
-              title="Update API schema"
-              desc="Add new endpoints for the reporting dashboard integration."
-              tag="Backend"
-              assignee={{ initials: "JS", name: "John S." }}
-            />
-            <WorkspaceTaskCard
-              status="TODO"
-              title="Review accessibility"
-              desc="Ensure color contrast meets WCAG AA standards across the app."
-              tag="Design"
-              priority="P2"
-            />
-          </>
-        )}
-        {mobileColumn === "IN_PROGRESS" && (
-          <>
-            <WorkspaceTaskCard
-              status="IN_PROGRESS"
-              title="Build project workspace"
-              desc="Configure boards, permission tiers, and team milestone tracking."
-              tag="Core"
-              assignee={{ initials: "AR", name: "Alex Rivera" }}
-              priority="P1"
-              isFocal
-            />
-            <WorkspaceTaskCard
-              status="IN_PROGRESS"
-              title="Design hero system"
-              desc="Finalize visual tokens and responsive layout for the landing page."
-              tag="Design"
-              assignee={{ initials: "SK", name: "Sasi K." }}
-            />
-            <WorkspaceTaskCard
-              status="IN_PROGRESS"
-              title="Setup staging environment"
-              desc="Provision database and cache clusters for beta testing."
-              tag="DevOps"
-              assignee={{ initials: "TC", name: "Tom C." }}
-            />
-          </>
-        )}
-        {mobileColumn === "DONE" && (
-          <>
-            <WorkspaceTaskCard
-              status="DONE"
-              title="User flow audit"
-              desc="All 5 core activation paths verified and documented."
-              tag="QA"
-              assignee={{ initials: "JL", name: "Jess L." }}
-              isCompleted
-            />
-            <WorkspaceTaskCard
-              status="DONE"
-              title="Define brand tokens"
-              desc="Approved color system, typography, and spacing scale."
-              tag="Design"
-              assignee={{ initials: "AR", name: "Alex R." }}
-              isCompleted
-            />
-            <WorkspaceTaskCard
-              status="DONE"
-              title="Initialize monorepo"
-              desc="Set up Next.js frontend and Express backend workspaces."
-              tag="Core"
-              assignee={{ initials: "JS", name: "John S." }}
-              isCompleted
-            />
-          </>
-        )}
-      </div>
-
-      {/* Desktop / Tablet 3-Column Board (>= 640px) */}
-      <div className="hidden sm:grid sm:grid-cols-3 gap-4 p-5 sm:p-6 bg-canvas/40 min-h-[380px]">
-        {/* Column 1: TO DO */}
-        <div className="flex flex-col gap-3">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            <span>To Do</span>
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              3
-            </span>
-          </h3>
-          <WorkspaceTaskCard
-            status="TODO"
-            title="Release notes v1.2"
-            desc="Compile change summary for the upcoming launch."
-            tag="Docs"
-          />
-          <WorkspaceTaskCard
-            status="TODO"
-            title="Update API schema"
-            desc="Add new endpoints for the reporting dashboard integration."
-            tag="Backend"
-            assignee={{ initials: "JS", name: "John S." }}
-          />
-          <WorkspaceTaskCard
-            status="TODO"
-            title="Review accessibility"
-            desc="Ensure color contrast meets WCAG AA standards across the app."
-            tag="Design"
-            priority="P2"
-          />
-        </div>
-
-        {/* Column 2: IN PROGRESS */}
-        <div className="flex flex-col gap-3">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            <span>In Progress</span>
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              3
-            </span>
-          </h3>
-          <WorkspaceTaskCard
-            status="IN_PROGRESS"
-            title="Build project workspace"
-            desc="Configure boards, permission tiers, and team milestone tracking."
-            tag="Core"
-            assignee={{ initials: "AR", name: "Alex Rivera" }}
-            priority="P1"
-            isFocal
-          />
-          <WorkspaceTaskCard
-            status="IN_PROGRESS"
-            title="Design hero system"
-            desc="Finalize visual tokens and responsive layout for the landing page."
-            tag="Design"
-            assignee={{ initials: "SK", name: "Sasi K." }}
-          />
-          <WorkspaceTaskCard
-            status="IN_PROGRESS"
-            title="Setup staging environment"
-            desc="Provision database and cache clusters for beta testing."
-            tag="DevOps"
-            assignee={{ initials: "TC", name: "Tom C." }}
-          />
-        </div>
-
-        {/* Column 3: DONE */}
-        <div className="flex flex-col gap-3">
-          <h3 className="flex items-center gap-2 text-[11px] font-bold tracking-widest text-muted uppercase">
-            <span>Done</span>
-            <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-surface text-ink px-1.5 opacity-70 border border-line/60">
-              3
-            </span>
-          </h3>
-          <WorkspaceTaskCard
-            status="DONE"
-            title="User flow audit"
-            desc="All 5 core activation paths verified and documented."
-            tag="QA"
-            assignee={{ initials: "JL", name: "Jess L." }}
-            isCompleted
-          />
-          <WorkspaceTaskCard
-            status="DONE"
-            title="Define brand tokens"
-            desc="Approved color system, typography, and spacing scale."
-            tag="Design"
-            assignee={{ initials: "AR", name: "Alex R." }}
-            isCompleted
-          />
-          <WorkspaceTaskCard
-            status="DONE"
-            title="Initialize monorepo"
-            desc="Set up Next.js frontend and Express backend workspaces."
-            tag="Core"
-            assignee={{ initials: "JS", name: "John S." }}
-            isCompleted
-          />
-        </div>
+      {/* Filtered Task Cards */}
+      <div className="p-4 sm:p-6 bg-canvas/40 min-h-[220px]">
+        <motion.div 
+          layout={!reduced}
+          className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-start"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredTasks.map((task) => (
+              <motion.div
+                key={task.id}
+                layout={!reduced}
+                initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 15 }}
+                animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+                exit={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: -15 }}
+                transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+              >
+                <WorkspaceTaskCard {...task} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   );
