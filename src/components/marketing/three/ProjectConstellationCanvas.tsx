@@ -19,10 +19,12 @@ const tasks = [
 
 function Connection({ start, end, active }: { start: THREE.Vector3; end: THREE.Vector3; active?: boolean }) {
   const pulseRef = useRef<THREE.Mesh>(null);
+  const timeRef = useRef(0);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
     if (active && pulseRef.current) {
-      const t = (state.clock.elapsedTime * 0.6) % 1;
+      timeRef.current += delta;
+      const t = (timeRef.current * 0.6) % 1;
       pulseRef.current.position.lerpVectors(start, end, t);
     }
   });
@@ -48,14 +50,16 @@ function Connection({ start, end, active }: { start: THREE.Vector3; end: THREE.V
 function Scene() {
   const group = useRef<THREE.Group>(null);
   const coreRef = useRef<THREE.Mesh>(null);
+  const timeRef = useRef(0);
 
-  useFrame(({ pointer, clock }, delta) => {
+  useFrame(({ pointer }, delta) => {
     if (group.current) {
       group.current.rotation.y += (pointer.x * 0.15 - group.current.rotation.y) * delta * 2;
       group.current.rotation.x += (-pointer.y * 0.1 - group.current.rotation.x) * delta * 2;
     }
     if (coreRef.current) {
-      coreRef.current.rotation.y = clock.elapsedTime * 0.2;
+      timeRef.current += delta;
+      coreRef.current.rotation.y = timeRef.current * 0.2;
     }
   });
 
