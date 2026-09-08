@@ -47,7 +47,7 @@ export function AuthForm({ register = false }: { register?: boolean }) {
     <motion.div
       initial={reduced ? false : { opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35 }}
+      transition={{ duration: 0.25 }}
       className="w-full max-w-md rounded-2xl border border-line bg-white p-8 shadow-sm sm:p-10"
     >
       <p className="eyebrow mb-3 text-accent">Your workspace</p>

@@ -156,6 +156,38 @@ export default function DashboardPage() {
         <section>
           <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
             <div>
+              <h2 className="text-lg tracking-tight">Next Actions</h2>
+              <p className="mt-1 text-[13px] text-muted">Open tasks assigned to you</p>
+            </div>
+            <Link
+              href="/my-tasks"
+              className="flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-ink transition-colors pb-1"
+            >
+              My Tasks
+              <ArrowRight size={15} />
+            </Link>
+          </div>
+          {assigned.length ? (
+            <div className="card bg-white p-2">
+              <TaskList
+                tasks={assigned}
+                onUpdated={() => {
+                  void refreshTasks();
+                  void refreshProjects();
+                }}
+              />
+            </div>
+          ) : (
+            <EmptyState
+              title="A clear view ahead."
+              description="You have no open assigned tasks. Enjoy the progress."
+            />
+          )}
+        </section>
+
+        <section>
+          <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
+            <div>
               <h2 className="text-lg tracking-tight">Active Projects</h2>
               <p className="mt-1 text-[13px] text-muted">What's moving right now</p>
             </div>
@@ -185,38 +217,6 @@ export default function DashboardPage() {
                 Create a project
               </button>
             </EmptyState>
-          )}
-        </section>
-
-        <section>
-          <div className="mb-6 flex items-end justify-between border-b border-line pb-4">
-            <div>
-              <h2 className="text-lg tracking-tight">Next Actions</h2>
-              <p className="mt-1 text-[13px] text-muted">Open tasks assigned to you</p>
-            </div>
-            <Link
-              href="/my-tasks"
-              className="flex items-center gap-1.5 text-[13px] font-medium text-muted hover:text-ink transition-colors pb-1"
-            >
-              My Tasks
-              <ArrowRight size={15} />
-            </Link>
-          </div>
-          {assigned.length ? (
-            <div className="card bg-white p-2">
-              <TaskList
-                tasks={assigned}
-                onUpdated={() => {
-                  void refreshTasks();
-                  void refreshProjects();
-                }}
-              />
-            </div>
-          ) : (
-            <EmptyState
-              title="A clear view ahead."
-              description="You have no open assigned tasks. Enjoy the progress."
-            />
           )}
         </section>
       </div>
