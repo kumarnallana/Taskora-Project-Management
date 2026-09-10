@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
@@ -14,9 +14,9 @@ enum TaskStatus {
 }
 
 model User {
-  id           String          @id @default(uuid()) @db.Uuid
-  name         String          @db.VarChar(80)
-  email        String          @unique @db.VarChar(254)
+  id           String          @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  email        String          @unique
   passwordHash String
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
@@ -26,11 +26,11 @@ model User {
 }
 
 model Project {
-  id          String          @id @default(uuid()) @db.Uuid
-  name        String          @db.VarChar(120)
-  description String          @default("") @db.VarChar(4000)
-  ownerId     String          @db.Uuid
-  owner       User            @relation(fields: [ownerId], references: [id], onDelete: Restrict)
+  id          String          @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String          @default("")
+  ownerId     String          @db.ObjectId
+  owner       User            @relation(fields: [ownerId], references: [id])
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
   members     ProjectMember[]
@@ -40,23 +40,24 @@ model Project {
 }
 
 model ProjectMember {
-  projectId String   @db.Uuid
-  userId    String   @db.Uuid
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  projectId String   @db.ObjectId
+  userId    String   @db.ObjectId
   createdAt DateTime @default(now())
   project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@id([projectId, userId])
+  @@unique([projectId, userId])
   @@index([userId])
 }
 
 model Task {
-  id          String     @id @default(uuid()) @db.Uuid
-  projectId   String     @db.Uuid
-  title       String     @db.VarChar(160)
-  description String     @default("") @db.VarChar(4000)
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  projectId   String     @db.ObjectId
+  title       String
+  description String     @default("")
   status      TaskStatus @default(TODO)
-  assigneeId  String?    @db.Uuid
+  assigneeId  String?    @db.ObjectId
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
   project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
