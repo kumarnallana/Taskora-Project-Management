@@ -9,13 +9,20 @@ export const cookieName = "taskora_session";
 export const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: env.NODE_ENV === "production",
-  sameSite: "lax",
+  sameSite: env.NODE_ENV === "production" ? "none" : "lax",
   path: "/",
 };
 export const sessionSeconds = 60 * 60 * 24 * 7;
 
 export const authenticate: RequestHandler = async (req, res, next) => {
-  const token = req.cookies[cookieName];
+  const authHeader = req.headers.authorization;
+  const token =
+    typeof req.cookies[cookieName] === "string"
+      ? req.cookies[cookieName]
+      : authHeader?.startsWith("Bearer ")
+        ? authHeader.slice(7)
+        : undefined;
+
   if (typeof token !== "string")
     throw new AppError(401, "UNAUTHENTICATED", "Sign in to continue.");
   let userId: string;
@@ -26,7 +33,7 @@ export const authenticate: RequestHandler = async (req, res, next) => {
       audience: "taskora-web",
     });
     if (typeof payload === "string") throw new Error("Invalid session");
-    userId = z.uuid().parse(payload.sub);
+    userId = z.string().min(1).parse(payload.sub);
   } catch {
     res.clearCookie(cookieName, cookieOptions);
     throw new AppError(

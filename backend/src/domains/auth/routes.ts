@@ -71,7 +71,7 @@ authRouter.post("/register", authLimit, async (req, res) => {
       maxAge: sessionSeconds * 1000,
     })
     .status(201)
-    .json(user);
+    .json({ ...user, token });
 });
 
 authRouter.post("/login", authLimit, async (req, res) => {
@@ -100,7 +100,7 @@ authRouter.post("/login", authLimit, async (req, res) => {
       ...cookieOptions,
       maxAge: sessionSeconds * 1000,
     })
-    .json({ id: user.id, name: user.name, email: user.email });
+    .json({ id: user.id, name: user.name, email: user.email, token });
 });
 
 authRouter.post("/logout", (_req, res) => {

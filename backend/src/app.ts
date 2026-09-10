@@ -14,14 +14,24 @@ import { projectTaskRouter, taskRouter } from "./domains/tasks/routes";
 export const app = express();
 app.disable("x-powered-by");
 app.use(helmet());
-app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow any origin or reflection for credentials
+      callback(null, true);
+    },
+    credentials: true,
+  }),
+);
 app.use("/api", (_req, res, next) => {
   res.set("Cache-Control", "no-store");
   next();
 });
 app.use((req, _res, next) => {
   if (
+    env.CLIENT_ORIGIN !== "*" &&
     !["GET", "HEAD", "OPTIONS"].includes(req.method) &&
+    req.headers.origin &&
     req.headers.origin !== env.CLIENT_ORIGIN
   )
     throw new AppError(
