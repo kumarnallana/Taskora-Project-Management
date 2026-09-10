@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowUpRight, GripVertical } from "lucide-react";
+import { ArrowUpRight, Check } from "lucide-react";
 import { statuses } from "@data/tasks";
 import type { MyTask, TaskStatus } from "@/types/domain";
 import { tasksApi } from "@/services/api/tasks";
@@ -17,11 +17,15 @@ export function TaskList({
 }) {
   const [pending, setPending] = useState<string[]>([]);
   const [error, setError] = useState<unknown>();
+  const [notice, setNotice] = useState("");
   const reduced = useReducedMotion();
   return (
     <div className="space-y-3">
       <ErrorMessage error={error} />
-      <div className="card divide-y divide-line overflow-hidden">
+      <p role="status" className="task-notice">
+        {pending.length ? "Saving task status…" : notice}
+      </p>
+      <div className="card relative divide-y divide-line overflow-hidden">
         <AnimatePresence initial={false} mode="popLayout">
           {tasks.map((task) => (
             <motion.div
@@ -33,7 +37,9 @@ export function TaskList({
               className="group flex flex-col justify-between gap-4 p-4 sm:flex-row sm:items-center bg-white hover:bg-canvas/50 transition-colors"
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
-                <GripVertical size={16} className="shrink-0 text-line-strong opacity-0 transition-opacity group-hover:opacity-100 cursor-grab hidden sm:block" />
+                {task.status === "DONE" && (
+                  <Check size={16} className="shrink-0 text-success" />
+                )}
                 <Link
                   href={`/projects/${task.projectId}?tab=tasks&task=${task.id}`}
                   className="min-w-0 flex-1"
@@ -45,7 +51,9 @@ export function TaskList({
                       className="shrink-0 text-muted transition-colors group-hover:text-accent"
                     />
                   </h3>
-                  <p className="mt-1.5 text-xs font-medium text-muted">{task.project.name}</p>
+                  <p className="mt-1.5 text-xs font-medium text-muted">
+                    {task.project.name}
+                  </p>
                 </Link>
               </div>
               <label>
@@ -58,9 +66,13 @@ export function TaskList({
                     const status = event.target.value as TaskStatus;
                     setPending((ids) => [...ids, task.id]);
                     setError(undefined);
+                    setNotice("");
                     try {
                       await tasksApi.update(task.id, { status });
-                      onUpdated();
+                      await onUpdated();
+                      setNotice(
+                        `${task.title} moved to ${statuses.find((option) => option.value === status)?.label}.`,
+                      );
                     } catch (failure) {
                       setError(failure);
                     } finally {

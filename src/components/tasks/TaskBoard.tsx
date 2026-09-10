@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { statuses } from "@data/tasks";
@@ -30,6 +30,11 @@ export function TaskBoard({
   const [mobileStatus, setMobileStatus] = useState<TaskStatus>("TODO");
   const [pending, setPending] = useState<string[]>([]);
   const [error, setError] = useState<unknown>();
+  const [notice, setNotice] = useState("");
+  const [completedId, setCompletedId] = useState<string | null>(null);
+  useEffect(() => {
+    setEditingId(selectedTaskId);
+  }, [selectedTaskId]);
   const reduced = useReducedMotion();
   const editing = tasks.find((task) => task.id === editingId);
   const visible = tasks.filter((task) =>
@@ -55,6 +60,9 @@ export function TaskBoard({
         </button>
       </div>
       <ErrorMessage error={error} />
+      <p role="status" className="task-notice">
+        {pending.length ? "Saving task status…" : notice}
+      </p>
       <div
         className="mb-5 flex gap-2 lg:hidden"
         role="group"
@@ -88,7 +96,7 @@ export function TaskBoard({
                   <span className="text-muted">{column.length}</span>
                 </h2>
                 <button
-                  className="icon-button !h-9 !w-9 !border-transparent !bg-transparent"
+                  className="icon-button !border-transparent !bg-transparent"
                   aria-label={`Add ${status.label} task`}
                   onClick={() => setCreating(status.value)}
                 >
@@ -100,10 +108,11 @@ export function TaskBoard({
                   <motion.article
                     key={task.id}
                     layout={!reduced}
+                    layoutId={reduced ? undefined : `task-${task.id}`}
                     initial={reduced ? false : { opacity: 0, y: 5 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.16 }}
-                    className={`task-card ${task.status === "DONE" ? "completion-pulse" : ""}`}
+                    className={`task-card ${task.id === completedId ? "completion-pulse" : ""}`}
                   >
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <button
@@ -158,9 +167,16 @@ export function TaskBoard({
                           const next = event.target.value as TaskStatus;
                           setPending((ids) => [...ids, task.id]);
                           setError(undefined);
+                          setNotice("");
+                          setCompletedId(null);
                           try {
                             await tasksApi.update(task.id, { status: next });
-                            onUpdated();
+                            await onUpdated();
+                            setMobileStatus(next);
+                            if (next === "DONE") setCompletedId(task.id);
+                            setNotice(
+                              `${task.title} moved to ${statuses.find((option) => option.value === next)?.label}.`,
+                            );
                           } catch (failure) {
                             setError(failure);
                           } finally {

@@ -1,18 +1,20 @@
 "use client";
 import { useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
-import { Search, ArrowRight } from "lucide-react";
+import { Search, ArrowRight, CircleDot, CheckCheck } from "lucide-react";
 import Link from "next/link";
+import { motion, useReducedMotion } from "framer-motion";
 import { api } from "@/services/api/client";
 import { tasksApi } from "@/services/api/tasks";
 import type { MyTask } from "@/types/domain";
 import { statuses } from "@data/tasks";
 import { TaskList } from "@/components/tasks/TaskList";
-import { Loading, LoadError, EmptyState } from "@/components/shared/Feedback";
+import { Loading, LoadError } from "@/components/shared/Feedback";
 export default function MyTasksPage() {
   const { data, error, mutate: refresh } = useSWR<MyTask[]>(tasksApi.mine, api);
   const { mutate } = useSWRConfig();
   const [filter, setFilter] = useState("ALL");
+  const reduced = useReducedMotion();
   const [search, setSearch] = useState("");
   if (error) return <LoadError error={error} retry={() => void refresh()} />;
   if (!data) return <Loading />;
@@ -42,14 +44,15 @@ export default function MyTasksPage() {
           aria-label="Filter tasks by status"
         >
           {[{ value: "ALL", label: "All tasks" }, ...statuses].map((status) => (
-            <button
+            <motion.button
+              whileTap={reduced ? undefined : { scale: 0.97 }}
               key={status.value}
               className={`btn ${filter === status.value ? "btn-primary" : "btn-secondary"}`}
               aria-pressed={filter === status.value}
               onClick={() => setFilter(status.value)}
             >
               {status.label}
-            </button>
+            </motion.button>
           ))}
         </div>
         <label className="relative">
@@ -68,7 +71,7 @@ export default function MyTasksPage() {
         <TaskList
           tasks={tasks}
           onUpdated={() => {
-            void mutate(
+            return mutate(
               (key) =>
                 typeof key === "string" &&
                 (key.startsWith("/api/projects") || key === tasksApi.mine),
@@ -76,16 +79,40 @@ export default function MyTasksPage() {
           }}
         />
       ) : (
-        <EmptyState
-          title={
-            data.length ? "No tasks in this view." : "Your focus starts here."
-          }
-          description={
-            data.length
+        <div className="compact-empty">
+          <div
+            className="flex items-center gap-4 text-accent"
+            aria-hidden="true"
+          >
+            <CircleDot size={22} />
+            <span className="h-px w-12 bg-line-strong" />
+            <CheckCheck size={22} />
+          </div>
+          <h2 className="text-lg">
+            {data.length ? "No tasks in this view." : "Your focus starts here."}
+          </h2>
+          <p>
+            {data.length
               ? "Try a different status or search term."
-              : "Tasks assigned to you will appear here. Open a project to find your next piece of work."
-          }
-        />
+              : "Tasks assigned to you will appear here. Open a project to find your next piece of work."}
+          </p>
+          {data.length ? (
+            <button
+              className="btn btn-secondary"
+              onClick={() => {
+                setFilter("ALL");
+                setSearch("");
+              }}
+            >
+              Clear filters
+            </button>
+          ) : (
+            <Link href="/projects" className="btn btn-primary">
+              Open Projects
+              <ArrowRight size={16} />
+            </Link>
+          )}
+        </div>
       )}
     </>
   );

@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
+import { AnimatedNumber } from "@/components/shared/AnimatedNumber";
 import { useRouter, useSearchParams } from "next/navigation";
 import useSWR, { useSWRConfig } from "swr";
 import {
@@ -34,13 +36,14 @@ export function ProjectWorkspace({ id }: { id: string }) {
   const { mutate } = useSWRConfig();
   const searchParams = useSearchParams();
   const router = useRouter();
+  const reduced = useReducedMotion();
   const selected = searchParams.get("tab");
   const tab =
     selected === "tasks" || selected === "members" ? selected : "overview";
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   function refreshWorkspace() {
-    void mutate(
+    return mutate(
       (key) =>
         typeof key === "string" &&
         (key.startsWith("/api/projects") || key === tasksApi.mine),
@@ -68,39 +71,73 @@ export function ProjectWorkspace({ id }: { id: string }) {
         <ArrowLeft size={15} />
         All projects
       </Link>
-      <div className="page-heading">
-        <div className="min-w-0">
-          <p className="eyebrow !mt-0 !mb-3">Project workspace</p>
-          <h1 className="break-words">{project.name}</h1>
-          <p className="flex items-center gap-2 !text-xs">
-            <Users size={14} />
-            {project.members.length} members<span className="px-1">·</span>
-            <CheckCheck size={14} />
-            {done}/{project.tasks.length} tasks complete
-          </p>
-        </div>
-        {isOwner && (
-          <div className="flex shrink-0 gap-2">
-            <button
-              className="btn btn-secondary"
-              onClick={() => setEditing(true)}
-            >
-              <Pencil size={15} />
-              Edit project
-            </button>
-            <button
-              className="icon-button text-muted"
-              aria-label="Delete project"
-              onClick={() => setDeleting(true)}
-            >
-              <Trash2 size={17} />
-            </button>
+      <div className="project-identity">
+        <div className="page-heading">
+          <div className="min-w-0">
+            <p className="eyebrow !mt-0 !mb-3">Project workspace</p>
+            <h1 className="break-words">{project.name}</h1>
+            <p className="flex flex-wrap items-center gap-2 !text-xs">
+              <Users size={14} />
+              {project.members.length}{" "}
+              {project.members.length === 1 ? "member" : "members"}
+              <span className="px-1">·</span>
+              <CheckCheck size={14} />
+              {done}/{project.tasks.length} tasks complete
+            </p>
           </div>
-        )}
+          {isOwner && (
+            <div className="flex shrink-0 gap-2">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setEditing(true)}
+              >
+                <Pencil size={15} />
+                Edit project
+              </button>
+              <button
+                className="icon-button text-muted"
+                aria-label="Delete project"
+                onClick={() => setDeleting(true)}
+              >
+                <Trash2 size={17} />
+              </button>
+            </div>
+          )}
+        </div>
+        <div className="project-summary-rail">
+          <div className="flex min-w-0 flex-1 items-center gap-4">
+            <span className="text-sm font-semibold">
+              <AnimatedNumber value={project.progress} />%
+            </span>
+            <div className="progress-track max-w-72 flex-1">
+              <div
+                className="progress-fill"
+                style={{ width: `${project.progress}%` }}
+              />
+            </div>
+            <span className="text-xs text-muted">complete</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {project.members.slice(0, 4).map((member) => (
+                <span key={member.user.id} title={member.user.name}>
+                  <Avatar name={member.user.name} />
+                </span>
+              ))}
+            </div>
+            <Link
+              href={`/projects/${id}?tab=members`}
+              className="inline-flex min-h-11 items-center text-xs text-accent"
+            >
+              Project team
+              <ArrowRight size={14} className="ml-2" />
+            </Link>
+          </div>
+        </div>
       </div>
       <nav
         aria-label="Project sections"
-        className="mb-7 flex gap-7 border-b border-line"
+        className="project-tabs mb-7 flex gap-7 border-b border-line"
       >
         {["overview", "tasks", "members"].map((name) => (
           <Link
@@ -109,6 +146,13 @@ export function ProjectWorkspace({ id }: { id: string }) {
             className={`tab capitalize ${tab === name ? "active" : ""}`}
             aria-current={tab === name ? "page" : undefined}
           >
+            {tab === name && (
+              <motion.span
+                layoutId={`project-tabs-${id}`}
+                className="tab-indicator"
+                transition={{ duration: reduced ? 0 : 0.2 }}
+              />
+            )}
             {name[0].toUpperCase() + name.slice(1)}
             {name === "tasks" && (
               <span className="ml-2 text-xs text-muted">
@@ -119,7 +163,13 @@ export function ProjectWorkspace({ id }: { id: string }) {
         ))}
       </nav>
       {tab === "overview" && (
-        <div className="grid items-start gap-6 xl:grid-cols-[1.6fr_1fr]">
+        <motion.div
+          key="overview"
+          initial={reduced ? false : { opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="grid items-start gap-6 xl:grid-cols-[1.6fr_1fr]"
+        >
           <div className="space-y-6">
             <section className="card p-6">
               <p className="eyebrow mb-5">The plan</p>
@@ -207,7 +257,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
               </Link>
             </div>
           </section>
-        </div>
+        </motion.div>
       )}
       {tab === "tasks" && (
         <TaskBoard

@@ -51,6 +51,36 @@ test("register, collaborate, deliver and navigate responsively", async ({
     await page.getByLabel("Password", { exact: true }).fill(password);
     await page.getByLabel("Confirm Password", { exact: true }).fill(password);
     await page
+      .getByRole("button", { name: "Show password", exact: true })
+      .click();
+    await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+      "type",
+      "text",
+    );
+    await expect(
+      page.getByLabel("Confirm Password", { exact: true }),
+    ).toHaveAttribute("type", "password");
+    await page
+      .getByRole("button", { name: "Show confirmation password", exact: true })
+      .click();
+    await page
+      .getByRole("button", { name: "Hide password", exact: true })
+      .click();
+    await expect(page.getByLabel("Password", { exact: true })).toHaveAttribute(
+      "type",
+      "password",
+    );
+    await expect(
+      page.getByLabel("Confirm Password", { exact: true }),
+    ).toHaveAttribute("type", "text");
+    await page
+      .getByRole("button", { name: "Hide confirmation password", exact: true })
+      .click();
+    await expect(page.getByLabel("Password", { exact: true })).toHaveValue(
+      password,
+    );
+
+    await page
       .getByRole("button", { name: "Create account", exact: true })
       .click();
     await expect(page).toHaveURL(/\/dashboard$/);

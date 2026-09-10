@@ -1,4 +1,21 @@
 :root {
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --constellation-line: #63948e;
+  --constellation-member: #ddf0ed;
+  --constellation-active: #d6ac68;
+  --constellation-done: #8fcbb1;
+
   --canvas: #f4f7f7;
   --surface: #ffffff;
   --surface-muted: #eaf0ef;

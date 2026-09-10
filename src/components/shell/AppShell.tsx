@@ -153,7 +153,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
         <main
           id="main"
-          className="mx-auto max-w-[1440px] px-5 py-8 md:px-9 md:py-10"
+          className="workspace-content mx-auto max-w-[1440px] px-5 py-8 md:px-9 md:py-10"
         >
           <PageMotion>{children}</PageMotion>
         </main>
