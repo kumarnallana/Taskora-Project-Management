@@ -21,6 +21,8 @@ import { navigation } from "@data/navigation";
 import type { User } from "@/types/domain";
 import { PageMotion } from "./PageMotion";
 
+import { ProfileModal } from "@/components/profile/ProfileModal";
+
 const icons = {
   dashboard: LayoutDashboard,
   projects: FolderKanban,
@@ -36,6 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     mutate: retry,
   } = useSWR<User>(authApi.me, api, { shouldRetryOnError: false });
   const [drawer, setDrawer] = useState(false);
+  const [editingProfile, setEditingProfile] = useState(false);
   const [busy, setBusy] = useState(false);
   const [logoutError, setLogoutError] = useState<unknown>();
   useEffect(() => {
@@ -77,13 +80,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
   const account = (
     <div className="space-y-3 border-t border-line pt-5">
-      <div className="flex min-w-0 items-center gap-3">
-        <Avatar name={user.name} />
-        <div className="min-w-0">
-          <p className="truncate text-sm font-semibold">{user.name}</p>
-          <p className="mt-1 truncate text-xs text-muted">{user.email}</p>
+      <button
+        type="button"
+        onClick={() => setEditingProfile(true)}
+        className="group flex w-full min-w-0 items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-surface-muted cursor-pointer"
+        title="Click to edit profile"
+      >
+        <Avatar name={user.name} image={user.avatarUrl} />
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-ink group-hover:text-accent transition-colors">
+            {user.name}
+          </p>
+          <p className="mt-0.5 truncate text-xs text-muted">{user.email}</p>
         </div>
-      </div>
+      </button>
       <ErrorMessage error={logoutError} />
       <button
         className="nav-link w-full"
@@ -147,13 +157,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Your next move
             <ArrowUpRight size={15} />
           </Link>
-          <span className="lg:hidden">
-            <Avatar name={user.name} />
-          </span>
+          <button
+            type="button"
+            onClick={() => setEditingProfile(true)}
+            className="lg:hidden cursor-pointer"
+            title="Edit profile"
+          >
+            <Avatar name={user.name} image={user.avatarUrl} />
+          </button>
         </header>
         <main
           id="main"
-          className="workspace-content mx-auto max-w-[1440px] px-5 py-8 md:px-9 md:py-10"
+          className="workspace-content mx-auto max-w-[1440px] px-4 py-6 sm:px-5 md:px-9 md:py-10"
         >
           <PageMotion>{children}</PageMotion>
         </main>
@@ -163,6 +178,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="mb-8">{nav}</div>
           {account}
         </Dialog>
+      )}
+      {editingProfile && (
+        <ProfileModal user={user} onClose={() => setEditingProfile(false)} />
       )}
     </div>
   );

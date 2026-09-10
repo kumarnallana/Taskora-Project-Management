@@ -109,3 +109,57 @@ authRouter.post("/logout", (_req, res) => {
 authRouter.get("/me", authenticate, (_req, res) => {
   res.json(res.locals.user);
 });
+
+const profileUpdateSchema = z
+  .object({
+    name: z.string().trim().min(2).max(80).optional(),
+    email: emailSchema.optional(),
+    password: passwordSchema.optional(),
+    avatarUrl: z.string().trim().max(2000).optional().nullable(),
+  })
+  .strict()
+  .refine(
+    (data) => Object.keys(data).length > 0,
+    "Provide at least one field to update.",
+  );
+
+authRouter.patch("/profile", authenticate, async (req, res) => {
+  const currentUserId = res.locals.user.id;
+  const input = profileUpdateSchema.parse(req.body);
+
+  if (input.email) {
+    const existing = await prisma.user.findFirst({
+      where: { email: input.email, NOT: { id: currentUserId } },
+      select: { id: true },
+    });
+    if (existing) {
+      throw new AppError(
+        409,
+        "EMAIL_EXISTS",
+        "An account with this email already exists.",
+      );
+    }
+  }
+
+  const updateData: {
+    name?: string;
+    email?: string;
+    avatarUrl?: string | null;
+    passwordHash?: string;
+  } = {};
+
+  if (input.name) updateData.name = input.name;
+  if (input.email) updateData.email = input.email;
+  if (input.avatarUrl !== undefined) updateData.avatarUrl = input.avatarUrl || "";
+  if (input.password) {
+    updateData.passwordHash = await bcrypt.hash(input.password, 12);
+  }
+
+  const updatedUser = await prisma.user.update({
+    where: { id: currentUserId },
+    data: updateData,
+    select: safeUser,
+  });
+
+  res.json(updatedUser);
+});

@@ -1,11 +1,11 @@
 "use client";
-import { useState, type FormEvent } from "react";
-import { UserPlus, Trash2, Crown } from "lucide-react";
+import { useState, useEffect, type FormEvent } from "react";
+import { UserPlus, Trash2, Crown, UserCheck, Loader2 } from "lucide-react";
 import { Avatar } from "@/components/shared/Avatar";
 import { Dialog, ConfirmDialog } from "@/components/shared/Dialog";
 import { ErrorMessage } from "@/components/shared/Feedback";
 import { projectsApi } from "@/services/api/projects";
-import type { Member } from "@/types/domain";
+import type { Member, User } from "@/types/domain";
 
 export function MembersPanel({
   projectId,
@@ -21,9 +21,23 @@ export function MembersPanel({
   onUpdated: () => void;
 }) {
   const [adding, setAdding] = useState(false);
+  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
+  const [loadingAvailable, setLoadingAvailable] = useState(false);
   const [removing, setRemoving] = useState<Member | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>();
+
+  useEffect(() => {
+    if (adding) {
+      setLoadingAvailable(true);
+      projectsApi
+        .availableMembers(projectId)
+        .then((users) => setAvailableUsers(users))
+        .catch(() => setAvailableUsers([]))
+        .finally(() => setLoadingAvailable(false));
+    }
+  }, [adding, projectId]);
+
   async function add(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
@@ -39,6 +53,21 @@ export function MembersPanel({
       setBusy(false);
     }
   }
+
+  async function quickAdd(email: string) {
+    setBusy(true);
+    setError(undefined);
+    try {
+      await projectsApi.addMember(projectId, email);
+      onUpdated();
+      setAdding(false);
+    } catch (failure) {
+      setError(failure);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   return (
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
@@ -62,6 +91,7 @@ export function MembersPanel({
           </button>
         )}
       </div>
+
       <div className="card divide-y divide-line">
         {members.map((member) => (
           <div
@@ -69,7 +99,7 @@ export function MembersPanel({
             className="flex min-w-0 items-center justify-between gap-3 p-5"
           >
             <div className="flex min-w-0 items-center gap-3">
-              <Avatar name={member.user.name} />
+              <Avatar name={member.user.name} image={member.user.avatarUrl} />
               <div className="min-w-0">
                 <p className="truncate text-sm font-semibold">
                   {member.user.name}
@@ -98,18 +128,72 @@ export function MembersPanel({
           </div>
         ))}
       </div>
+
       {adding && (
         <Dialog
           title="Add a project member"
           onClose={() => setAdding(false)}
           busy={busy}
         >
-          <p className="mb-5 text-sm leading-relaxed text-muted">
-            Add someone who already has a Taskora account. They’ll be able to
-            view this project and work on its tasks.
-          </p>
-          <form onSubmit={add} className="space-y-5">
-            <ErrorMessage error={error} />
+          <ErrorMessage error={error} />
+
+          {/* Quick-add available registered users */}
+          <div className="mb-5">
+            <p className="text-xs font-semibold text-ink mb-2">
+              Registered teammates not in this project:
+            </p>
+            {loadingAvailable ? (
+              <div className="flex items-center justify-center gap-2 py-4 text-xs text-muted">
+                <Loader2 size={15} className="animate-spin" />
+                Finding teammates…
+              </div>
+            ) : availableUsers.length > 0 ? (
+              <div className="max-h-48 overflow-y-auto space-y-2 pr-1 rounded-xl border border-line bg-canvas p-2">
+                {availableUsers.map((u) => (
+                  <div
+                    key={u.id}
+                    className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-white border border-line/60 shadow-xs"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <Avatar name={u.name} image={u.avatarUrl} />
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold text-ink truncate">
+                          {u.name}
+                        </p>
+                        <p className="text-[11px] text-muted truncate">
+                          {u.email}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => quickAdd(u.email)}
+                      className="btn btn-primary !h-8 !px-3 !text-xs shrink-0 cursor-pointer"
+                    >
+                      <UserCheck size={13} />
+                      Add
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="rounded-lg border border-dashed border-line bg-canvas/60 p-3 text-center text-xs text-muted">
+                All registered users are already in this project.
+              </div>
+            )}
+          </div>
+
+          <div className="relative my-4 text-center">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-line" />
+            </div>
+            <span className="relative bg-white px-2 text-[11px] font-medium text-muted uppercase tracking-wider">
+              Or invite by email
+            </span>
+          </div>
+
+          <form onSubmit={add} className="space-y-4">
             <label className="field">
               Email
               <input
@@ -120,10 +204,9 @@ export function MembersPanel({
                 maxLength={254}
                 placeholder="teammate@company.com"
                 disabled={busy}
-                autoFocus
               />
             </label>
-            <div className="flex justify-end gap-3">
+            <div className="flex justify-end gap-3 pt-2">
               <button
                 className="btn btn-secondary"
                 type="button"
@@ -139,6 +222,7 @@ export function MembersPanel({
           </form>
         </Dialog>
       )}
+
       {removing && (
         <ConfirmDialog
           title="Remove member?"

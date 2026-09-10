@@ -13,4 +13,14 @@ export const authApi = {
       body: JSON.stringify(input),
     }),
   logout: () => api<void>("/api/auth/logout", { method: "POST" }),
+  updateProfile: (input: {
+    name?: string;
+    email?: string;
+    password?: string;
+    avatarUrl?: string | null;
+  }) =>
+    api<User>("/api/auth/profile", {
+      method: "PATCH",
+      body: JSON.stringify(input),
+    }),
 };

@@ -1,5 +1,5 @@
 import { api } from "./client";
-import type { ProjectInput, Project, Member } from "@/types/domain";
+import type { ProjectInput, Project, Member, User } from "@/types/domain";
 export const projectsApi = {
   list: "/api/projects",
   detail: (id: string) => `/api/projects/${id}`,
@@ -20,6 +20,8 @@ export const projectsApi = {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
+  availableMembers: (id: string) =>
+    api<User[]>(`/api/projects/${id}/members/available`),
   removeMember: (id: string, userId: string) =>
     api<void>(`/api/projects/${id}/members/${userId}`, { method: "DELETE" }),
 };

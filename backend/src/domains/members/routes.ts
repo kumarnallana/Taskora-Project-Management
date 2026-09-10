@@ -26,6 +26,25 @@ memberRouter.get<{ projectId: string }>("/", async (req, res) => {
   );
 });
 
+memberRouter.get<{ projectId: string }>("/available", async (req, res) => {
+  const projectId = routeId.parse(req.params.projectId);
+  await requireProject(prisma, projectId, res.locals.user.id);
+  const currentMembers = await prisma.projectMember.findMany({
+    where: { projectId },
+    select: { userId: true },
+  });
+  const memberUserIds = currentMembers.map((m) => m.userId);
+  const availableUsers = await prisma.user.findMany({
+    where: {
+      id: { notIn: memberUserIds },
+    },
+    select: safeUser,
+    take: 50,
+    orderBy: { name: "asc" },
+  });
+  res.json(availableUsers);
+});
+
 memberRouter.post<{ projectId: string }>("/", async (req, res) => {
   const projectId = routeId.parse(req.params.projectId);
   const { email } = z.object({ email: emailSchema }).strict().parse(req.body);
