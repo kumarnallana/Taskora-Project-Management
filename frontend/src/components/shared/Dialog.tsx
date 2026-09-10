@@ -53,19 +53,19 @@ export function Dialog({
         initial={reduced ? false : { opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.16 }}
-        className="p-6"
+        className="p-5 sm:p-6"
       >
-        <div className="mb-6 flex items-center justify-between gap-3">
-          <h2 id="dialog-title" className="text-xl tracking-tight">
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <h2 id="dialog-title" className="text-lg sm:text-xl font-semibold tracking-tight text-ink">
             {title}
           </h2>
           <button
-            className="icon-button"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-line bg-surface-muted text-muted transition-colors hover:border-ink/40 hover:bg-canvas hover:text-ink shrink-0"
             aria-label="Close dialog"
             onClick={onClose}
             disabled={busy}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
         {children}

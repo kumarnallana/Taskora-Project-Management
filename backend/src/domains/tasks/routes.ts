@@ -26,7 +26,7 @@ const taskInput = z
     title: z.string().trim().min(1).max(160),
     description: z.string().trim().max(4000).optional(),
     status: z.enum(["TODO", "IN_PROGRESS", "DONE"]).optional(),
-    assigneeId: z.uuid().nullable().optional(),
+    assigneeId: routeId.nullable().optional(),
   })
   .strict();
 const taskPatch = taskInput

@@ -137,7 +137,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
       </div>
       <nav
         aria-label="Project sections"
-        className="project-tabs mb-7 flex gap-7 border-b border-line"
+        className="project-tabs mb-7 flex gap-5 sm:gap-7 border-b border-line overflow-x-auto no-scrollbar"
       >
         {["overview", "tasks", "members"].map((name) => (
           <Link
@@ -197,9 +197,9 @@ export function ProjectWorkspace({ id }: { id: string }) {
                   <ArrowRight size={15} />
                 </Link>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {statuses.map((status) => (
-                  <div key={status.value} className="rounded-lg bg-canvas p-4">
+                  <div key={status.value} className="rounded-lg bg-canvas p-3 sm:p-4 text-center sm:text-left">
                     <p className="text-xs text-muted">{status.label}</p>
                     <p className="mt-3 text-2xl font-semibold">
                       {
