@@ -22,6 +22,7 @@ import { Loading, LoadError } from "@/components/shared/Feedback";
 import { Avatar } from "@/components/shared/Avatar";
 import { ConfirmDialog } from "@/components/shared/Dialog";
 import { ProjectForm } from "./ProjectForm";
+import { ProjectChat } from "@/components/chat/ProjectChat";
 import { TaskBoard } from "@/components/tasks/TaskBoard";
 import { MembersPanel } from "@/components/members/MembersPanel";
 import { statuses } from "@data/tasks";
@@ -39,7 +40,9 @@ export function ProjectWorkspace({ id }: { id: string }) {
   const reduced = useReducedMotion();
   const selected = searchParams.get("tab");
   const tab =
-    selected === "tasks" || selected === "members" ? selected : "overview";
+    selected === "tasks" || selected === "members" || selected === "chat"
+      ? selected
+      : "overview";
   const [editing, setEditing] = useState(false);
   const [deleting, setDeleting] = useState(false);
   function refreshWorkspace() {
@@ -121,7 +124,10 @@ export function ProjectWorkspace({ id }: { id: string }) {
             <div className="flex -space-x-2">
               {project.members.slice(0, 4).map((member) => (
                 <span key={member.user.id} title={member.user.name}>
-                  <Avatar name={member.user.name} />
+                  <Avatar
+                    name={member.user.name}
+                    image={member.user.avatarUrl}
+                  />
                 </span>
               ))}
             </div>
@@ -137,9 +143,9 @@ export function ProjectWorkspace({ id }: { id: string }) {
       </div>
       <nav
         aria-label="Project sections"
-        className="project-tabs mb-7 flex gap-5 sm:gap-7 border-b border-line overflow-x-auto no-scrollbar"
+        className="project-tabs mb-7 flex gap-4 sm:gap-7 border-b border-line overflow-x-auto no-scrollbar"
       >
-        {["overview", "tasks", "members"].map((name) => (
+        {["overview", "tasks", "members", "chat"].map((name) => (
           <Link
             key={name}
             href={`/projects/${id}?tab=${name}`}
@@ -179,7 +185,10 @@ export function ProjectWorkspace({ id }: { id: string }) {
                   "Add a description to give your team a shared direction."}
               </p>
               <div className="mt-8 flex items-center gap-3 border-t border-line pt-5">
-                <Avatar name={project.owner.name} />
+                <Avatar
+                  name={project.owner.name}
+                  image={project.owner.avatarUrl}
+                />
                 <div>
                   <p className="text-xs font-semibold">{project.owner.name}</p>
                   <p className="mt-1 text-[11px] text-muted">Project owner</p>
@@ -199,7 +208,10 @@ export function ProjectWorkspace({ id }: { id: string }) {
               </div>
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {statuses.map((status) => (
-                  <div key={status.value} className="rounded-lg bg-canvas p-3 sm:p-4 text-center sm:text-left">
+                  <div
+                    key={status.value}
+                    className="rounded-lg bg-canvas p-3 sm:p-4 text-center sm:text-left"
+                  >
                     <p className="text-xs text-muted">{status.label}</p>
                     <p className="mt-3 text-2xl font-semibold">
                       {
@@ -244,7 +256,10 @@ export function ProjectWorkspace({ id }: { id: string }) {
               <div className="flex flex-wrap gap-2">
                 {project.members.slice(0, 8).map((member) => (
                   <span key={member.user.id} title={member.user.name}>
-                    <Avatar name={member.user.name} />
+                    <Avatar
+                      name={member.user.name}
+                      image={member.user.avatarUrl}
+                    />
                   </span>
                 ))}
               </div>
@@ -263,6 +278,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
         <TaskBoard
           projectId={id}
           tasks={project.tasks}
+          canManageTasks={project.canManageTasks}
           members={project.members}
           onUpdated={refreshWorkspace}
           selectedTaskId={searchParams.get("task")}
@@ -277,6 +293,7 @@ export function ProjectWorkspace({ id }: { id: string }) {
           onUpdated={refreshWorkspace}
         />
       )}
+      {tab === "chat" && <ProjectChat projectId={id} />}
       {editing && (
         <ProjectForm
           project={project}

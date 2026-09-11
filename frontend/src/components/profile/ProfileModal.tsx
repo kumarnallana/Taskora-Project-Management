@@ -1,21 +1,13 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useSWRConfig } from "swr";
+import { Camera } from "lucide-react";
 import { Dialog } from "@/components/shared/Dialog";
 import { Avatar } from "@/components/shared/Avatar";
 import { ErrorMessage } from "@/components/shared/Feedback";
 import { authApi } from "@/services/api/auth";
+import { chatApi } from "@/services/api/chat";
 import type { User } from "@/types/domain";
-import { useSWRConfig } from "swr";
-import { Camera, Check, Sparkles } from "lucide-react";
-
-const AVATAR_PRESETS = [
-  "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80",
-  "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80",
-];
 
 export function ProfileModal({
   user,
@@ -30,112 +22,113 @@ export function ProfileModal({
   const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl || "");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<unknown>();
-  const [savedNotice, setSavedNotice] = useState(false);
-
+  const pending = useRef<string[]>([]);
+  useEffect(
+    () => () => {
+      for (const id of pending.current)
+        void chatApi.removeFile(id).catch(() => {});
+    },
+    [],
+  );
+  async function upload(file?: File) {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      setError(new Error("Choose a photo up to 5 MB."));
+      return;
+    }
+    setBusy(true);
+    setError(undefined);
+    try {
+      const uploaded = await chatApi.upload(file, { purpose: "avatar" });
+      pending.current.push(uploaded.id);
+      setAvatarUrl("/api/files/" + uploaded.id);
+    } catch (failure) {
+      setError(failure);
+    } finally {
+      setBusy(false);
+    }
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setBusy(true);
     setError(undefined);
-    setSavedNotice(false);
-
-    const form = new FormData(event.currentTarget);
-    const newPassword = String(form.get("password") || "").trim();
-
-    const payload: {
-      name?: string;
-      email?: string;
-      avatarUrl?: string;
-      password?: string;
-    } = {
-      name: name.trim(),
-      email: email.trim(),
-      avatarUrl: avatarUrl.trim(),
-    };
-
-    if (newPassword) {
-      payload.password = newPassword;
-    }
-
+    const password = String(
+      new FormData(event.currentTarget).get("password") || "",
+    );
     try {
-      const updated = await authApi.updateProfile(payload);
-      // Update local SWR cache across entire app
-      await mutate(authApi.me, updated, { revalidate: true });
-      // Also revalidate projects to update avatar in project member lists
-      await mutate((key: unknown) => typeof key === "string" && key.startsWith("/api/projects"));
-
-      setSavedNotice(true);
-      setTimeout(() => {
-        onClose();
-      }, 700);
+      const updated = await authApi.updateProfile({
+        name: name.trim(),
+        email: email.trim(),
+        avatarUrl: avatarUrl.trim(),
+        ...(password ? { password } : {}),
+      });
+      pending.current = pending.current.filter(
+        (id) => "/api/files/" + id !== updated.avatarUrl,
+      );
+      if (
+        user.avatarUrl?.startsWith("/api/files/") &&
+        user.avatarUrl !== updated.avatarUrl
+      )
+        void chatApi.removeFile(user.avatarUrl.slice(11)).catch(() => {});
+      await mutate(authApi.me, updated, { revalidate: false });
+      void mutate(
+        (key: unknown) =>
+          typeof key === "string" &&
+          (key.startsWith("/api/projects") || key.startsWith("/api/chat")),
+      );
+      onClose();
     } catch (failure) {
       setError(failure);
       setBusy(false);
     }
   }
-
   return (
     <Dialog title="Edit profile" onClose={onClose} busy={busy}>
       <form onSubmit={submit} className="space-y-5">
         <ErrorMessage error={error} />
-        {savedNotice && (
-          <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-800 border border-emerald-200">
-            <Check size={16} /> Profile updated successfully!
-          </div>
-        )}
-
-        {/* Avatar preview and selection */}
-        <div className="flex flex-col sm:flex-row items-center gap-4 rounded-xl bg-canvas p-4 border border-line">
-          <div className="relative">
-            <Avatar name={name || user.name} image={avatarUrl || null} />
-          </div>
-          <div className="flex-1 text-center sm:text-left min-w-0">
-            <p className="text-xs font-semibold text-ink">Profile Picture</p>
-            <p className="text-[11px] text-muted mt-0.5">
-              Choose a preset avatar below or paste a custom image URL.
-            </p>
-            <div className="mt-2.5 flex flex-wrap items-center justify-center sm:justify-start gap-2">
-              {AVATAR_PRESETS.map((preset, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setAvatarUrl(preset)}
-                  className={`h-7 w-7 overflow-hidden rounded-full border-2 transition-all ${
-                    avatarUrl === preset
-                      ? "border-accent scale-110 shadow-sm"
-                      : "border-line/60 hover:border-ink/40 opacity-80 hover:opacity-100"
-                  }`}
-                >
-                  <img src={preset} alt="preset" className="h-full w-full object-cover" />
-                </button>
-              ))}
+        <fieldset disabled={busy} className="space-y-4">
+          <div className="flex flex-wrap items-center gap-4 rounded-xl border border-line bg-canvas p-4">
+            <Avatar name={name || user.name} image={avatarUrl} />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold">Your profile photo</p>
+              <p className="mt-1 text-xs text-muted">
+                JPG, PNG, WebP, or GIF · up to 5 MB
+              </p>
+              <label className="btn btn-secondary mt-3 cursor-pointer">
+                <Camera size={15} />
+                {busy ? "Please wait…" : "Upload photo"}
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  className="sr-only"
+                  aria-label="Upload profile photo"
+                  onChange={(event) => {
+                    void upload(event.target.files?.[0]);
+                    event.target.value = "";
+                  }}
+                />
+              </label>
               {avatarUrl && (
                 <button
                   type="button"
+                  className="ml-3 text-xs text-muted underline"
                   onClick={() => setAvatarUrl("")}
-                  className="text-[11px] text-muted hover:text-danger underline ml-1"
                 >
-                  Reset
+                  Remove photo
                 </button>
               )}
             </div>
           </div>
-        </div>
-
-        <fieldset disabled={busy} className="space-y-4">
           <label className="field">
-            Avatar Image URL (Optional)
-            <div className="relative">
-              <input
-                className="input !pl-9 text-xs"
-                name="avatarUrl"
-                value={avatarUrl}
-                onChange={(e) => setAvatarUrl(e.target.value)}
-                placeholder="https://example.com/your-avatar.jpg"
-              />
-              <Camera size={15} className="absolute left-3 top-3.5 text-muted" />
-            </div>
+            Image URL (optional)
+            <input
+              className="input"
+              value={avatarUrl}
+              onChange={(event) => setAvatarUrl(event.target.value)}
+              maxLength={2000}
+              placeholder="https://example.com/your-photo.jpg"
+            />
           </label>
-
           <label className="field">
             Full name
             <input
@@ -145,11 +138,9 @@ export function ProfileModal({
               minLength={2}
               maxLength={80}
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your full name"
+              onChange={(event) => setName(event.target.value)}
             />
           </label>
-
           <label className="field">
             Email address
             <input
@@ -159,35 +150,29 @@ export function ProfileModal({
               required
               maxLength={254}
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
+              onChange={(event) => setEmail(event.target.value)}
             />
           </label>
-
           <label className="field">
-            New password (Optional)
+            New password (optional)
             <input
               className="input"
               name="password"
               type="password"
               minLength={8}
+              autoComplete="new-password"
               placeholder="Leave blank to keep your current password"
             />
-            <span className="text-[11px] text-muted mt-1">
-              Minimum 8 characters. Leave empty if you do not wish to change it.
-            </span>
           </label>
-
-          <div className="flex items-center justify-end gap-3 pt-3 border-t border-line">
+          <div className="flex justify-end gap-3 border-t border-line pt-4">
             <button
-              className="btn btn-secondary"
               type="button"
+              className="btn btn-secondary"
               onClick={onClose}
-              disabled={busy}
             >
               Cancel
             </button>
-            <button className="btn btn-primary" type="submit" disabled={busy}>
+            <button className="btn btn-primary" type="submit">
               {busy ? "Saving…" : "Save changes"}
             </button>
           </div>

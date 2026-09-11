@@ -6,7 +6,7 @@ import { statuses } from "@data/tasks";
 import type { Task, Member, TaskStatus } from "@/types/domain";
 import { tasksApi } from "@/services/api/tasks";
 import { Avatar } from "@/components/shared/Avatar";
-import { ConfirmDialog } from "@/components/shared/Dialog";
+import { Dialog, ConfirmDialog } from "@/components/shared/Dialog";
 import { ErrorMessage } from "@/components/shared/Feedback";
 import { TaskForm } from "./TaskForm";
 
@@ -16,12 +16,14 @@ export function TaskBoard({
   members,
   onUpdated,
   selectedTaskId,
+  canManageTasks,
 }: {
   projectId: string;
   tasks: Task[];
   members: Member[];
   onUpdated: () => void;
   selectedTaskId: string | null;
+  canManageTasks: boolean;
 }) {
   const [creating, setCreating] = useState<TaskStatus | null>(null);
   const [editingId, setEditingId] = useState<string | null>(selectedTaskId);
@@ -54,11 +56,22 @@ export function TaskBoard({
             onChange={(event) => setSearch(event.target.value)}
           />
         </label>
-        <button className="btn btn-primary" onClick={() => setCreating("TODO")}>
-          <Plus size={16} />
-          New task
-        </button>
+        {canManageTasks && (
+          <button
+            className="btn btn-primary"
+            onClick={() => setCreating("TODO")}
+          >
+            <Plus size={16} />
+            New task
+          </button>
+        )}
       </div>
+      {!canManageTasks && (
+        <p className="mb-5 text-sm text-muted">
+          Task status and assignments are managed by the project owner and team
+          leads. Use project chat to share updates.
+        </p>
+      )}
       <ErrorMessage error={error} />
       <p role="status" className="task-notice">
         {pending.length ? "Saving task status…" : notice}
@@ -95,13 +108,15 @@ export function TaskBoard({
                   </span>
                   <span className="text-muted">{column.length}</span>
                 </h2>
-                <button
-                  className="icon-button !border-transparent !bg-transparent"
-                  aria-label={`Add ${status.label} task`}
-                  onClick={() => setCreating(status.value)}
-                >
-                  <Plus size={16} />
-                </button>
+                {canManageTasks && (
+                  <button
+                    className="icon-button !border-transparent !bg-transparent"
+                    aria-label={`Add ${status.label} task`}
+                    onClick={() => setCreating(status.value)}
+                  >
+                    <Plus size={16} />
+                  </button>
+                )}
               </div>
               <div className="space-y-3">
                 {column.map((task) => (
@@ -121,22 +136,24 @@ export function TaskBoard({
                       >
                         {task.title}
                       </button>
-                      <div className="flex shrink-0">
-                        <button
-                          className="icon-button !h-11 !w-9 !border-0"
-                          aria-label={`Edit ${task.title}`}
-                          onClick={() => setEditingId(task.id)}
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button
-                          className="icon-button !h-11 !w-9 !border-0 text-muted"
-                          aria-label={`Delete ${task.title}`}
-                          onClick={() => setDeleting(task)}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                      {canManageTasks && (
+                        <div className="flex shrink-0">
+                          <button
+                            className="icon-button !h-11 !w-9 !border-0"
+                            aria-label={`Edit ${task.title}`}
+                            onClick={() => setEditingId(task.id)}
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            className="icon-button !h-11 !w-9 !border-0 text-muted"
+                            aria-label={`Delete ${task.title}`}
+                            onClick={() => setDeleting(task)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                     {task.description && (
                       <p className="mb-5 line-clamp-3 text-xs leading-relaxed break-words text-muted">
@@ -157,42 +174,55 @@ export function TaskBoard({
                         </span>
                       )}
                     </div>
-                    <label className="mt-3 block">
-                      <span className="sr-only">Status for {task.title}</span>
-                      <select
-                        className="input !min-h-11 !text-xs"
-                        value={task.status}
-                        disabled={pending.includes(task.id)}
-                        onChange={async (event) => {
-                          const next = event.target.value as TaskStatus;
-                          setPending((ids) => [...ids, task.id]);
-                          setError(undefined);
-                          setNotice("");
-                          setCompletedId(null);
-                          try {
-                            await tasksApi.update(task.id, { status: next });
-                            await onUpdated();
-                            setMobileStatus(next);
-                            if (next === "DONE") setCompletedId(task.id);
-                            setNotice(
-                              `${task.title} moved to ${statuses.find((option) => option.value === next)?.label}.`,
-                            );
-                          } catch (failure) {
-                            setError(failure);
-                          } finally {
-                            setPending((ids) =>
-                              ids.filter((id) => id !== task.id),
-                            );
-                          }
-                        }}
+                    {canManageTasks ? (
+                      <label className="mt-3 block">
+                        <span className="sr-only">Status for {task.title}</span>
+                        <select
+                          className="input !min-h-11 !text-xs"
+                          value={task.status}
+                          disabled={pending.includes(task.id)}
+                          onChange={async (event) => {
+                            const next = event.target.value as TaskStatus;
+                            setPending((ids) => [...ids, task.id]);
+                            setError(undefined);
+                            setNotice("");
+                            setCompletedId(null);
+                            try {
+                              await tasksApi.update(task.id, { status: next });
+                              await onUpdated();
+                              setMobileStatus(next);
+                              if (next === "DONE") setCompletedId(task.id);
+                              setNotice(
+                                `${task.title} moved to ${statuses.find((option) => option.value === next)?.label}.`,
+                              );
+                            } catch (failure) {
+                              setError(failure);
+                            } finally {
+                              setPending((ids) =>
+                                ids.filter((id) => id !== task.id),
+                              );
+                            }
+                          }}
+                        >
+                          {statuses.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : (
+                      <span
+                        className={`badge badge-${task.status} mt-3`}
+                        aria-label={`Status for ${task.title}: ${task.status}`}
                       >
-                        {statuses.map((option) => (
-                          <option key={option.value} value={option.value}>
-                            {option.label}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
+                        {
+                          statuses.find(
+                            (status) => status.value === task.status,
+                          )?.label
+                        }
+                      </span>
+                    )}
                   </motion.article>
                 ))}
                 {!column.length && (
@@ -207,7 +237,7 @@ export function TaskBoard({
           );
         })}
       </div>
-      {creating && (
+      {creating && canManageTasks && (
         <TaskForm
           projectId={projectId}
           members={members}
@@ -216,7 +246,21 @@ export function TaskBoard({
           onSaved={onUpdated}
         />
       )}
-      {editing && (
+      {editing && !canManageTasks && (
+        <Dialog title={editing.title} onClose={() => setEditingId(null)}>
+          <span className={`badge badge-${editing.status}`}>
+            {statuses.find((status) => status.value === editing.status)?.label}
+          </span>
+          <p className="mt-5 whitespace-pre-wrap break-words leading-relaxed">
+            {editing.description || "No description yet."}
+          </p>
+          <p className="mt-5 text-sm text-muted">
+            Assigned to {editing.assignee?.name || "no one"}. Only owners and
+            team leads can change this task.
+          </p>
+        </Dialog>
+      )}
+      {editing && canManageTasks && (
         <TaskForm
           projectId={projectId}
           members={members}
@@ -225,7 +269,7 @@ export function TaskBoard({
           onSaved={onUpdated}
         />
       )}
-      {deleting && (
+      {deleting && canManageTasks && (
         <ConfirmDialog
           title="Delete task?"
           description={`“${deleting.title}” will be permanently removed from this project.`}

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import useSWR, { useSWRConfig } from "swr";
 import {
   LayoutDashboard,
+  MessageSquare,
   FolderKanban,
   CheckCheck,
   Menu,
@@ -27,6 +28,7 @@ const icons = {
   dashboard: LayoutDashboard,
   projects: FolderKanban,
   tasks: CheckCheck,
+  messages: MessageSquare,
 };
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();

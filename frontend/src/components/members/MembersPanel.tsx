@@ -75,7 +75,7 @@ export function MembersPanel({
           <h2 className="text-lg">The people behind the project</h2>
           <p className="mt-2 text-xs text-muted">
             {members.length} {members.length === 1 ? "member" : "members"} ·
-            Everyone can create and update tasks.
+            Owners and team leads manage tasks. Everyone can chat.
           </p>
         </div>
         {isOwner && (
@@ -92,11 +92,12 @@ export function MembersPanel({
         )}
       </div>
 
+      {!adding && <ErrorMessage error={error} />}
       <div className="card divide-y divide-line">
         {members.map((member) => (
           <div
             key={member.user.id}
-            className="flex min-w-0 items-center justify-between gap-3 p-5"
+            className="flex min-w-0 flex-wrap items-center justify-between gap-3 p-5"
           >
             <div className="flex min-w-0 items-center gap-3">
               <Avatar name={member.user.name} image={member.user.avatarUrl} />
@@ -115,15 +116,44 @@ export function MembersPanel({
                 Owner
               </span>
             ) : isOwner ? (
-              <button
-                className="icon-button text-muted"
-                aria-label={`Remove ${member.user.name}`}
-                onClick={() => setRemoving(member)}
-              >
-                <Trash2 size={16} />
-              </button>
+              <div className="flex items-center gap-2">
+                <select
+                  className="input !w-auto !text-xs"
+                  aria-label={`Role for ${member.user.name}`}
+                  value={member.role}
+                  disabled={busy}
+                  onChange={async (event) => {
+                    setBusy(true);
+                    setError(undefined);
+                    try {
+                      await projectsApi.setMemberRole(
+                        projectId,
+                        member.user.id,
+                        event.target.value as Member["role"],
+                      );
+                      onUpdated();
+                    } catch (failure) {
+                      setError(failure);
+                    } finally {
+                      setBusy(false);
+                    }
+                  }}
+                >
+                  <option value="MEMBER">Team member</option>
+                  <option value="LEAD">Team lead</option>
+                </select>
+                <button
+                  className="icon-button text-muted"
+                  aria-label={`Remove ${member.user.name}`}
+                  onClick={() => setRemoving(member)}
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
             ) : (
-              <span className="badge bg-canvas text-muted">Member</span>
+              <span className="badge bg-canvas text-muted">
+                {member.role === "LEAD" ? "Team lead" : "Member"}
+              </span>
             )}
           </div>
         ))}
@@ -137,7 +167,6 @@ export function MembersPanel({
         >
           <ErrorMessage error={error} />
 
-          {/* Quick-add available registered users */}
           <div className="mb-5">
             <p className="text-xs font-semibold text-ink mb-2">
               Registered teammates not in this project:

@@ -56,37 +56,49 @@ export function TaskList({
                   </p>
                 </Link>
               </div>
-              <label>
-                <span className="sr-only">Status for {task.title}</span>
-                <select
-                  className={`input !min-h-11 !w-auto !min-w-36 !text-xs badge-${task.status}`}
-                  value={task.status}
-                  disabled={pending.includes(task.id)}
-                  onChange={async (event) => {
-                    const status = event.target.value as TaskStatus;
-                    setPending((ids) => [...ids, task.id]);
-                    setError(undefined);
-                    setNotice("");
-                    try {
-                      await tasksApi.update(task.id, { status });
-                      await onUpdated();
-                      setNotice(
-                        `${task.title} moved to ${statuses.find((option) => option.value === status)?.label}.`,
-                      );
-                    } catch (failure) {
-                      setError(failure);
-                    } finally {
-                      setPending((ids) => ids.filter((id) => id !== task.id));
-                    }
-                  }}
+              {task.canManageTasks ? (
+                <label>
+                  <span className="sr-only">Status for {task.title}</span>
+                  <select
+                    className={`input !min-h-11 !w-auto !min-w-36 !text-xs badge-${task.status}`}
+                    value={task.status}
+                    disabled={pending.includes(task.id)}
+                    onChange={async (event) => {
+                      const status = event.target.value as TaskStatus;
+                      setPending((ids) => [...ids, task.id]);
+                      setError(undefined);
+                      setNotice("");
+                      try {
+                        await tasksApi.update(task.id, { status });
+                        await onUpdated();
+                        setNotice(
+                          `${task.title} moved to ${statuses.find((option) => option.value === status)?.label}.`,
+                        );
+                      } catch (failure) {
+                        setError(failure);
+                      } finally {
+                        setPending((ids) => ids.filter((id) => id !== task.id));
+                      }
+                    }}
+                  >
+                    {statuses.map((status) => (
+                      <option key={status.value} value={status.value}>
+                        {status.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <span
+                  className={`badge badge-${task.status} self-start sm:self-center`}
+                  title="Only the project owner or a team lead can change status"
                 >
-                  {statuses.map((status) => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  {
+                    statuses.find((status) => status.value === task.status)
+                      ?.label
+                  }
+                </span>
+              )}
             </motion.div>
           ))}
         </AnimatePresence>

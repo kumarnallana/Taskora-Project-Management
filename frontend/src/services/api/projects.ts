@@ -20,6 +20,11 @@ export const projectsApi = {
       method: "POST",
       body: JSON.stringify({ email }),
     }),
+  setMemberRole: (id: string, userId: string, role: Member["role"]) =>
+    api<Member>(`/api/projects/${id}/members/${userId}`, {
+      method: "PATCH",
+      body: JSON.stringify({ role }),
+    }),
   availableMembers: (id: string) =>
     api<User[]>(`/api/projects/${id}/members/available`),
   removeMember: (id: string, userId: string) =>
